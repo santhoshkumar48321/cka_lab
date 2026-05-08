@@ -6,25 +6,46 @@ if ! kubectl get pod atlas-app -n default >/dev/null 2>&1; then
   exit 1
 fi
 
-containers="$(kubectl get pod atlas-app -n default -o jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}')"
-count="$(echo "$containers" | awk 'END{print NR+0}')"
-if ! test "$count" -eq 2; then
-  echo "Pod 'atlas-app' must have exactly 2 containers, found: $count"
+# Count containers – strip blank lines
+container_count=$(kubectl get pod atlas-app -n default \
+  -o jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' \
+  | grep -c .)
+if [ "$container_count" -ne 2 ]; then
+  echo "Pod 'atlas-app' must have exactly 2 containers, found: $container_count"
   exit 1
 fi
 
-if ! echo "$containers" | grep -q 'log-sidecar'; then
+if ! kubectl get pod atlas-app -n default \
+     -o jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' \
+     | grep -q 'log-sidecar'; then
   echo "Pod 'atlas-app' must have sidecar container named 'log-sidecar'"
   exit 1
 fi
 
-sidecar_cmd="$(kubectl get pod atlas-app -n default -o jsonpath='{range .spec.containers[?(@.name=="log-sidecar")]}{.command}{.args}{end}')"
-if ! echo "$sidecar_cmd" | grep -q 'tail'; then
+# Check image
+sidecar_image=$(kubectl get pod atlas-app -n default \
+  -o jsonpath='{range .spec.containers[?(@.name=="log-sidecar")]}{.image}{end}')
+if ! echo "$sidecar_image" | grep -q 'busybox'; then
+  echo "Sidecar 'log-sidecar' must use busybox image, got: $sidecar_image"
+  exit 1
+fi
+
+# Check command includes tail and the log path
+sidecar_args=$(kubectl get pod atlas-app -n default \
+  -o jsonpath='{range .spec.containers[?(@.name=="log-sidecar")]}{.command}{.args}{end}')
+if ! echo "$sidecar_args" | grep -q 'tail'; then
   echo "Sidecar container 'log-sidecar' must run a tail command"
   exit 1
 fi
-if ! echo "$sidecar_cmd" | grep -q 'atlas-app.log'; then
+if ! echo "$sidecar_args" | grep -q 'atlas-app.log'; then
   echo "Sidecar must tail '/var/log/atlas-app.log'"
+  exit 1
+fi
+
+# Verify shared volume is mounted in sidecar
+if ! kubectl get pod atlas-app -n default -o yaml \
+     | grep -A5 'name: log-sidecar' | grep -q 'mountPath'; then
+  echo "Sidecar 'log-sidecar' must have a volumeMount"
   exit 1
 fi
 

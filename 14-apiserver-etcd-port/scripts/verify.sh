@@ -9,14 +9,24 @@ if ! test -s "$manifest"; then
 fi
 
 if ! grep -q -- '--etcd-servers=.*:2379' "$manifest"; then
-  echo "kube-apiserver etcd port is not set to 2379"
+  echo "kube-apiserver --etcd-servers must use port 2379 (not 2380)"
   exit 1
 fi
 
-if ! kubectl get nodes >/dev/null 2>&1; then
-  echo "API server is not responding to kubectl get nodes"
+if grep -q -- '--etcd-servers=.*:2380' "$manifest"; then
+  echo "kube-apiserver manifest still contains port 2380 – fix to 2379"
   exit 1
 fi
 
-echo "PASS"
-exit 0
+# Wait for API server to recover after manifest edit (up to 90s)
+echo "Waiting for API server to become healthy..."
+for i in $(seq 1 45); do
+  if kubectl get nodes >/dev/null 2>&1; then
+    echo "PASS"
+    exit 0
+  fi
+  sleep 2
+done
+
+echo "API server did not recover in time. Check kubelet: journalctl -u kubelet | tail -30"
+exit 1

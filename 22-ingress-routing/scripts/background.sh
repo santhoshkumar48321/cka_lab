@@ -2,20 +2,17 @@
 set -euo pipefail
 
 wait_kube() {
-  for i in $(seq 1 60); do
-    if kubectl get ns >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep 1
+  for i in $(seq 1 90); do
+    if kubectl get ns >/dev/null 2>&1; then return 0; fi
+    sleep 2
   done
-  echo "Kubernetes API not ready after 60 seconds" >&2
-  exit 1
+  echo "Kubernetes API not ready" >&2; exit 1
 }
-
 wait_kube
 
 kubectl create namespace ing-private --dry-run=client -o yaml | kubectl apply -f -
 
+# Use a real echo server that listens on port 5678
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
@@ -34,7 +31,10 @@ spec:
     spec:
       containers:
       - name: hello
-        image: nginx:latest
+        image: hashicorp/http-echo:latest
+        args:
+        - "-listen=:5678"
+        - "-text=Hello from ing-private!"
         ports:
         - containerPort: 5678
 YAML

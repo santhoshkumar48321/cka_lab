@@ -2,16 +2,12 @@
 set -euo pipefail
 
 wait_kube() {
-  for i in $(seq 1 60); do
-    if kubectl get ns >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep 1
+  for i in $(seq 1 90); do
+    if kubectl get ns >/dev/null 2>&1; then return 0; fi
+    sleep 2
   done
-  echo "Kubernetes API not ready after 60 seconds" >&2
-  exit 1
+  echo "Kubernetes API not ready" >&2; exit 1
 }
-
 wait_kube
 
 mkdir -p /opt/CKA2026/payment-api
@@ -37,5 +33,16 @@ spec:
         sleep 2
       done
 YAML
+
+# Wait for pod to be Running so logs are available when user starts
+echo "Waiting for payment-api pod to be Running..."
+for i in $(seq 1 60); do
+  phase=$(kubectl get pod payment-api -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+  if [ "$phase" = "Running" ]; then
+    echo "Pod is Running"
+    break
+  fi
+  sleep 3
+done
 
 echo "Setup complete"

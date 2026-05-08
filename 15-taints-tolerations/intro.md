@@ -1,7 +1,12 @@
 ## Goal
-Reserve a node so normal pods can't schedule, then schedule a pod with toleration on that node.
+Reserve a node for production workloads using a taint, then schedule a pod that tolerates it.
+
+## What you'll see when the lab starts
+A node already has the taint `Env=Production:NoSchedule` applied. Your task is to create a pod that can schedule onto that tainted node.
 
 ## Requirements
-- Node: `worker-node01`
-- Taint: key=`Env`, value=`Production`, effect=`NoSchedule`
-- Pod name: `prod-pod` must land on `worker-node01`
+- Find the node that carries taint `Env=Production:NoSchedule`
+- Pod name: `prod-pod`
+- Image: `nginx:latest`
+- Pod must have a toleration for `Env=Production:NoSchedule`
+- Pod must be in **Running** state
