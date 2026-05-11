@@ -31,7 +31,7 @@ spec:
     - |
       mkdir -p /var/log
       while true; do
-        echo "$(date) INFO atlas-app processing request" >> /var/log/atlas-app.log
+        echo "\$(date) INFO atlas-app processing request" >> /var/log/atlas-app.log
         sleep 2
       done
     volumeMounts:
