@@ -1,38 +1,42 @@
 ## Tasks
-1. Create Service `app-service` (type **ClusterIP**) on service port **8090** targeting the nginx app pods on port **80**:
+
+### Step 1 — Inspect the existing Deployment
 ```bash
-kubectl -n demo-app expose deployment app \
-  --name=app-service \
-  --port=8090 \
-  --target-port=80 \
-  --type=ClusterIP
+kubectl -n demo-app get deployment app -o wide
+kubectl -n demo-app describe deployment app
 ```
 
-2. Create Ingress `app-ingress` in namespace `demo-app`:
-   - host: `demo.example.com`
-   - path: `/api` (pathType: Prefix)
-   - backend: `app-service:8090`
+### Step 2 — Create Service `app-service`
 
+Use `kubectl expose` or write a YAML manifest:
 ```bash
-kubectl apply -f - <<EOF
+# Hint: fill in the port and target-port values
+kubectl -n demo-app expose deployment app \
+  --name=app-service \
+  --port=_____ \
+  --target-port=_____ \
+  --type=_____
+```
+
+### Step 3 — Create Ingress `app-ingress` (fill in the blanks)
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-ingress
-  namespace: demo-app
+  name: ___________
+  namespace: ___________
 spec:
   rules:
-  - host: demo.example.com
+  - host: ___________
     http:
       paths:
-      - path: /api
-        pathType: Prefix
+      - path: ___________
+        pathType: ___________
         backend:
           service:
-            name: app-service
+            name: ___________
             port:
-              number: 8090
-EOF
+              number: ___________
 ```
 
 ## Verify

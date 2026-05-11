@@ -1,7 +1,11 @@
-## Nice work ✅
+## Well done! 🎉
 
-If you want to repeat: use the **Restart Scenario** button to reset the environment.
+You practiced rendering a Helm chart to static YAML while excluding pre-installed CRDs.
 
-Tips:
-- Keep `kubectl get all -A` and `kubectl describe` close.
-- Prove success with the verification commands, not vibes 😄
+**Why it matters on the CKA exam**: GitOps and Helm templating questions test your ability to manage cluster resources declaratively without causing API conflicts from duplicate CRD installation.
+
+**CKA Domain**: Cluster Architecture, Installation & Configuration
+
+**Common mistake to avoid**: Forgetting `--skip-crds` and piping the output directly to `kubectl apply` — the API server will reject it with "CustomResourceDefinition already exists" for every Argo CD CRD.
+
+**Further reading**: https://helm.sh/docs/helm/helm_template/

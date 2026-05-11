@@ -1,10 +1,52 @@
 ## Tasks
 
-1. Inspect the existing Ingress `api-ingress` and confirm the current backend service is `web-svc`.
-2. Create Gateway `api-gateway` in namespace `default` using GatewayClass `nginx-gateway`.
-3. Configure an HTTP listener on port `80` for hostname `api.demo.k8s.local`.
-4. Create HTTPRoute `api-route` in namespace `default`.
-5. Route path `/` to backend service `web-svc` on port `80`.
+1. Inspect the existing Ingress to confirm the backend service and host:
+```bash
+kubectl get ingress api-ingress -o yaml
+```
+
+2. Check the available GatewayClass:
+```bash
+kubectl get gatewayclass
+```
+
+3. Create Gateway `api-gateway` — fill in the blanks:
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: ___________
+  namespace: ___________
+spec:
+  gatewayClassName: ___________
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: ___________
+    hostname: ___________
+```
+
+4. Create HTTPRoute `api-route` — fill in the blanks:
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ___________
+  namespace: ___________
+spec:
+  parentRefs:
+  - name: ___________
+  hostnames:
+  - ___________
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: ___________
+    backendRefs:
+    - name: ___________
+      port: ___________
+```
 
 ## Verify
 ```bash

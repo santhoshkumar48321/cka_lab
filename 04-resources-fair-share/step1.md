@@ -1,15 +1,33 @@
 ## Tasks
-1. Scale deployment to 1 replica:
+
+### Step 1 — Inspect current state
+```bash
+kubectl describe deployment webapp-deployment
+kubectl get deployment webapp-deployment -o jsonpath='{.spec.template.spec.initContainers[0].resources}'; echo
+kubectl get deployment webapp-deployment -o jsonpath='{.spec.template.spec.containers[0].resources}'; echo
+```
+
+### Step 2 — Scale down to 1 replica (easier to edit)
 ```bash
 kubectl scale deploy webapp-deployment --replicas=1
 ```
 
-2. Calculate fair per-pod resources for 3 replicas using node allocatable, minus existing requests, with overhead (ex: 10%).
+### Step 3 — Edit the deployment
 
-3. Edit the deployment:
-   - apply the same requests/limits to initContainers and containers
+Use `kubectl edit deploy webapp-deployment` and add the resource block to **both** `initContainers` and `containers`:
 
-4. Scale back to 3:
+```yaml
+# Add under each container spec (initContainers[0] AND containers[0]):
+resources:
+  requests:
+    cpu: ___________     # target: 200m
+    memory: ___________  # target: 128Mi
+  limits:
+    cpu: ___________     # target: 400m
+    memory: ___________  # target: 256Mi
+```
+
+### Step 4 — Scale back to 3 replicas
 ```bash
 kubectl scale deploy webapp-deployment --replicas=3
 kubectl rollout status deploy/webapp-deployment
@@ -18,5 +36,6 @@ kubectl rollout status deploy/webapp-deployment
 ## Verify
 ```bash
 kubectl get pods -l app=webapp
-kubectl describe pod <pod> | egrep -A6 "Requests|Limits"
+POD=$(kubectl get pods -l app=webapp -o name | head -1)
+kubectl describe $POD | grep -A6 "Requests\|Limits"
 ```
