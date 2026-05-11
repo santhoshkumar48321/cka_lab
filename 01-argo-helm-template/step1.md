@@ -1,22 +1,24 @@
 ## Tasks
-1) Add the official Argo CD Helm repository with name `argocd-repo`
-2) Generate a Helm template from chart `argo/argo-cd` **version 7.6.8** into namespace `gitops`
-3) Ensure CRDs are not included in output (CRDs are pre-installed)
-4) Save output YAML to: `/home/candidate/argocd-manifest.yaml`
+1. Add the official Argo CD Helm repository with name `argocd-repo`
+2. Update the repo cache
+3. Render the Helm chart with CRDs **excluded** and save to `/home/candidate/argocd-manifest.yaml`
 
-## Suggested commands
+## Hints
+
 ```bash
-helm repo add argocd-repo https://argoproj.github.io/argo-helm
+# Add the repo (fill in the correct URL)
+helm repo add argocd-repo <HELM_REPO_URL>
 helm repo update
 
+# Render the chart (fill in the blanks):
 helm template argocd argocd-repo/argo-cd \
-  --version 7.6.8 \
-  --namespace gitops \
-  --skip-crds \
+  --version <VERSION> \
+  --namespace <NAMESPACE> \
+  --<FLAG_TO_SKIP_CRDS> \
   > /home/candidate/argocd-manifest.yaml
 ```
 
-If needed, you may also use chart values such as `--set crds.install=false` as long as CRDs are not rendered.
+> **Hint**: The flag that prevents CRD output is `--skip-crds`. The chart URL is `https://argoproj.github.io/argo-helm`.
 
 ## Verify
 ```bash

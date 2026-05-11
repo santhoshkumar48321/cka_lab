@@ -7,15 +7,19 @@ cat ~/crds-list.yaml
 ```
 
 2. Extract documentation for `VirtualService.spec.hosts` using `kubectl explain` and save to `~/hosts-spec.yaml`:
+
 ```bash
-kubectl explain virtualservice.spec.hosts > ~/hosts-spec.yaml
+# The short name for VirtualService is 'vs'. Try:
+kubectl explain vs.spec.hosts > ~/hosts-spec.yaml
+
 # If the short name isn't registered yet, use the full resource name:
-# kubectl explain virtualservices.networking.istio.io.spec.hosts > ~/hosts-spec.yaml
-cat ~/hosts-spec.yaml
+kubectl explain virtualservices.networking.istio.io.spec.hosts > ~/hosts-spec.yaml
 ```
 
+> **Tip**: `kubectl api-resources` and `kubectl explain` are allowed during the actual exam and are your best tools to discover API schemas without memorising them. Always try the short name first, then fall back to the full `resource.group.field` form.
+
 ## Why this matters for CKA
-`kubectl api-resources` and `kubectl explain` are allowed during the actual exam and are your best tools to discover API schemas without memorizing them.
+CRD discovery and `kubectl explain` usage are directly tested in the Cluster Architecture domain. You must know how to find resource fields without memorizing them.
 
 ## Verify
 ```bash

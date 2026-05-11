@@ -2,47 +2,45 @@
 
 Create NetworkPolicies to allow ONLY `frontend-app` → `backend-api` traffic on port 80, blocking everything else.
 
-### Step 1 — Default-deny all ingress to `backend` namespace
+### Step 1 — Check namespace labels
 ```bash
-kubectl apply -f - <<EOF
+kubectl get namespace frontend backend --show-labels
+```
+
+### Step 2 — Default-deny all ingress to `backend` namespace (fill in the blanks)
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-ingress
-  namespace: backend
+  namespace: ___________
 spec:
-  podSelector: {}
+  podSelector: {}        # selects ALL pods in the namespace
   policyTypes:
-  - Ingress
-EOF
+  - ___________
 ```
 
-### Step 2 — Allow ingress from `frontend` namespace only
-```bash
-kubectl apply -f - <<EOF
+### Step 3 — Allow ingress from `frontend` namespace only (fill in the blanks)
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-from-frontend
-  namespace: backend
+  namespace: ___________
 spec:
   podSelector:
     matchLabels:
-      app: backend
+      app: ___________
   policyTypes:
   - Ingress
   ingress:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: frontend
-      podSelector:
-        matchLabels:
-          app: frontend
+          kubernetes.io/metadata.name: ___________
     ports:
     - protocol: TCP
-      port: 80
-EOF
+      port: ___________
 ```
 
 > **Tip**: NetworkPolicies are **additive**. A default-deny policy + an allow policy = least-permissive. Without the default-deny, traffic from other pods is still allowed.

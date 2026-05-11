@@ -1,7 +1,11 @@
-## Nice work ✅
+## Well done! 🎉
 
-If you want to repeat: use the **Restart Scenario** button to reset the environment.
+You practiced discovering CRDs and extracting schema documentation with `kubectl explain` — essential exam survival skills.
 
-Tips:
-- Keep `kubectl get all -A` and `kubectl describe` close.
-- Prove success with the verification commands, not vibes 😄
+**Why it matters on the CKA exam**: The exam allows `kubectl explain` and the Kubernetes docs. Knowing how to navigate CRD schemas quickly is critical when encountering unfamiliar resource types.
+
+**CKA Domain**: Cluster Architecture, Installation & Configuration
+
+**Common mistake to avoid**: Relying on the short name when it is not registered — always have the full `resource.group` form as a fallback (e.g., `virtualservices.networking.istio.io.spec.hosts`).
+
+**Further reading**: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
