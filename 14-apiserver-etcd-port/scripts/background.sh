@@ -12,7 +12,6 @@ wait_kube() {
   exit 1
 }
 
-wait_kube
 
 manifest="/etc/kubernetes/manifests/kube-apiserver.yaml"
 if [ ! -f "$manifest" ]; then

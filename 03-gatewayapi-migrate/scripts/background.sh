@@ -2,19 +2,22 @@
 set -euo pipefail
 
 wait_kube() {
-  for i in $(seq 1 90); do
-    if kubectl get ns >/dev/null 2>&1; then return 0; fi
-    sleep 2
+  for i in $(seq 1 60); do
+    if kubectl get ns >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
   done
-  echo "Kubernetes API not ready" >&2; exit 1
+  echo "Kubernetes API not ready after 60 seconds" >&2
+  exit 1
 }
+
 wait_kube
 
-# ── Install Gateway API CRDs (v1.2.0 standard channel) ──
+# Install Gateway API CRDs (v1.2.0 standard channel)
 echo "Installing Gateway API CRDs..."
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml \
   || kubectl apply -f - <<'GWCRDS'
-# Minimal inline fallback: GatewayClass + Gateway + HTTPRoute CRDs (skeleton)
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -76,7 +79,6 @@ spec:
     kind: HTTPRoute
 GWCRDS
 
-# ── Create GatewayClass (referenced in intro as pre-existing) ──
 kubectl apply -f - <<'YAML'
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -86,24 +88,24 @@ spec:
   controllerName: nginx.org/gateway-controller
 YAML
 
-# ── Backend Service ──
+# Create backend resources before ingress
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-backend
+  name: web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api-backend
+      app: web
   template:
     metadata:
       labels:
-        app: api-backend
+        app: web
     spec:
       containers:
-      - name: api-backend
+      - name: web
         image: nginx:latest
         ports:
         - containerPort: 80
@@ -111,17 +113,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-backend-svc
+  name: web-svc
 spec:
-  type: ClusterIP
   selector:
-    app: api-backend
+    app: web
   ports:
   - port: 80
     targetPort: 80
 YAML
 
-# ── Existing Ingress for the user to migrate ──
 kubectl apply -f - <<'YAML'
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -136,7 +136,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: api-backend-svc
+            name: web-svc
             port:
               number: 80
 YAML

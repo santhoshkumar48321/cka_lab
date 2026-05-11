@@ -37,7 +37,7 @@ spec:
         - |
           mkdir -p /var/log
           while true; do
-            echo "$(date) INFO app running" >> /var/log/application.log
+            echo "\$(date) INFO app running" >> /var/log/application.log
             sleep 2
           done
         volumeMounts:

@@ -23,8 +23,8 @@ if ! test "$hostname" = "api.demo.k8s.local"; then
   exit 1
 fi
 
-if ! kubectl get httproute api-route -n default -o yaml | grep -q 'api-backend-svc'; then
-  echo "HTTPRoute 'api-route' does not reference service 'api-backend-svc'"
+if ! kubectl get httproute api-route -n default -o yaml | grep -q 'web-svc'; then
+  echo "HTTPRoute 'api-route' does not reference service 'web-svc'"
   exit 1
 fi
 

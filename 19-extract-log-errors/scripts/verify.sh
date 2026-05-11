@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-file="/opt/CKA2026/payment-api/errors.log"
+file="/opt/CKA2026/log-pod/errors.log"
 
 if ! test -s "$file"; then
   echo "Missing or empty file: $file"

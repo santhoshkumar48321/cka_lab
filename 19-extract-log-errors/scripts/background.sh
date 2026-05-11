@@ -2,47 +2,56 @@
 set -euo pipefail
 
 wait_kube() {
-  for i in $(seq 1 90); do
-    if kubectl get ns >/dev/null 2>&1; then return 0; fi
-    sleep 2
+  for i in $(seq 1 60); do
+    if kubectl get ns >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
   done
-  echo "Kubernetes API not ready" >&2; exit 1
+  echo "Kubernetes API not ready after 60 seconds" >&2
+  exit 1
 }
+
 wait_kube
 
-mkdir -p /opt/CKA2026/payment-api
+mkdir -p /opt/CKA2026/log-pod
 
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
-  name: payment-api
+  name: log-pod
 spec:
+  volumes:
+  - name: app-logs
+    emptyDir: {}
   containers:
-  - name: payment-api
+  - name: log-pod
     image: busybox:1.36
     command: ["/bin/sh", "-c"]
     args:
     - |
       while true; do
-        echo "INFO processing payment request id=1234"
-        echo "error file-not-found: receipt_1234.pdf"
-        echo "INFO payment completed successfully"
-        echo "error file-not-found: invoice_5678.pdf"
-        echo "INFO request completed"
+        echo "INFO processing payment request id=1234" >> /var/log/app.log
+        echo "error file-not-found: receipt_1234.pdf" >> /var/log/app.log
+        echo "INFO payment completed successfully" >> /var/log/app.log
+        echo "error file-not-found: invoice_5678.pdf" >> /var/log/app.log
+        echo "INFO request completed" >> /var/log/app.log
         sleep 2
       done
+    volumeMounts:
+    - name: app-logs
+      mountPath: /var/log
 YAML
 
-# Wait for pod to be Running so logs are available when user starts
-echo "Waiting for payment-api pod to be Running..."
+echo "Waiting for log-pod to be Running..."
 for i in $(seq 1 60); do
-  phase=$(kubectl get pod payment-api -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+  phase=$(kubectl get pod log-pod -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
   if [ "$phase" = "Running" ]; then
     echo "Pod is Running"
     break
   fi
-  sleep 3
+  sleep 1
 done
 
 echo "Setup complete"

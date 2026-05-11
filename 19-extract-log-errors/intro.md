@@ -2,6 +2,8 @@
 Monitor logs of a Pod and extract only the error lines matching a pattern.
 
 ## Requirements
-- Pod name: `payment-api`
+- Pod name: `log-pod`
+- Pod image: `busybox:1.36`
+- Pod log path: `/var/log/app.log`
 - Extract log lines that contain: `error file-not-found`
-- Write them to: `/opt/CKA2026/payment-api/errors.log`
+- Write output to: `/opt/CKA2026/log-pod/errors.log`

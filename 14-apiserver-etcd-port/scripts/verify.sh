@@ -18,15 +18,20 @@ if grep -q -- '--etcd-servers=.*:2380' "$manifest"; then
   exit 1
 fi
 
-# Wait for API server to recover after manifest edit (up to 90s)
 echo "Waiting for API server to become healthy..."
+healthy=0
 for i in $(seq 1 45); do
   if kubectl get nodes >/dev/null 2>&1; then
-    echo "PASS"
-    exit 0
+    healthy=1
+    break
   fi
   sleep 2
 done
 
-echo "API server did not recover in time. Check kubelet: journalctl -u kubelet | tail -30"
-exit 1
+if [ "$healthy" -ne 1 ]; then
+  echo "API server did not recover in time. Check kubelet: journalctl -u kubelet | tail -30"
+  exit 1
+fi
+
+echo "PASS"
+exit 0
