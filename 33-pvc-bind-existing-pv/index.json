@@ -1,0 +1,22 @@
+{
+  "title": "Storage: Create PVC binding to retained PV and mount in Deployment",
+  "details": {
+    "intro": {
+      "text": "intro.md",
+      "background": "scripts/background.sh"
+    },
+    "steps": [
+      {
+        "title": "Task",
+        "text": "step1.md",
+        "verify": "scripts/verify.sh"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  }
+}

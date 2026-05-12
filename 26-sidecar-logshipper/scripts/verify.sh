@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! kubectl get deployment myapp -n default >/dev/null 2>&1; then
+  echo "Deployment myapp not found in default namespace"
+  exit 1
+fi
+
+container_count=$(kubectl get deployment myapp -n default \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.name}{"\n"}{end}' \
+  | grep -c .)
+if [ "$container_count" -ne 2 ]; then
+  echo "Deployment myapp must have exactly 2 containers, found: $container_count"
+  exit 1
+fi
+
+if ! kubectl get deployment myapp -n default -o yaml | grep -q 'name: logshipper'; then
+  echo "Sidecar container 'logshipper' not found"
+  exit 1
+fi
+
+if ! kubectl get deployment myapp -n default \
+     -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{.image}{"\n"}{end}' \
+     | grep -q '^logshipper:.*alpine:latest'; then
+  echo "Sidecar 'logshipper' must use image alpine:latest"
+  exit 1
+fi
+
+if ! kubectl get deployment myapp -n default \
+     -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{.image}{"\n"}{end}' \
+     | grep -q '^myapp:.*busybox:1\.36'; then
+  echo "Original 'myapp' container must still exist with image busybox:1.36"
+  exit 1
+fi
+
+logshipper_cmd=$(kubectl get deployment myapp -n default \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .command[*]}{@}{" "}{end}{range .args[*]}{@}{" "}{end}{"\n"}{end}' \
+  | grep '^logshipper:' || echo "")
+if ! echo "$logshipper_cmd" | grep -qE 'tail.*logs\.txt|logs\.txt.*tail'; then
+  echo "logshipper command must include 'tail' and '/opt/logs.txt'"
+  exit 1
+fi
+
+missing=$(kubectl get deployment myapp -n default \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .volumeMounts[*]}{.mountPath}{" "}{end}{"\n"}{end}' \
+  | grep -v '/opt' | grep -c . || true)
+if [ "$missing" -ne 0 ]; then
+  echo "Both containers must mount the shared volume at /opt"
+  exit 1
+fi
+
+echo "PASS"
+exit 0
