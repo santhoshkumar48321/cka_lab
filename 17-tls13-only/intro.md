@@ -23,4 +23,3 @@ Update the nginx ConfigMap to restrict TLS to version 1.3 only, then restart the
 | Service | `secure-site-svc` |
 | Allowed TLS | TLSv1.3 only |
 | Forbidden | TLSv1.2 must be removed from ssl_protocols |
-| The container currently has NO port spec defined — you must add it |
