@@ -1,39 +1,40 @@
 ## Tasks
-1. Verify the namespace `ing-private` and service `hello` exist
-2. Create Ingress `wave` in namespace `ing-private`
-3. Route path `/hello` to service `hello` on port `5678`
 
-## Suggested commands
+1. Inspect the existing service in sound-zone:
 ```bash
-# Check existing resources
-kubectl get ns ing-private
-kubectl -n ing-private get svc hello
+kubectl -n sound-zone get svc soundserver-svc
+kubectl -n sound-zone get pods --show-labels
+```
 
-# Create Ingress
-cat <<EOF | kubectl apply -f -
+2. Create the Ingress — fill in the blanks:
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: wave
-  namespace: ing-private
+  name: ___________
+  namespace: ___________
 spec:
   rules:
-  - http:
+  - host: ___________
+    http:
       paths:
-      - path: /hello
+      - path: ___________
         pathType: Prefix
         backend:
           service:
-            name: hello
+            name: ___________
             port:
-              number: 5678
-EOF
+              number: ___________
+```
+
+## Hints
+```bash
+kubectl -n sound-zone get all
+# The service soundserver-svc listens on port 9090
 ```
 
 ## Verify
 ```bash
-kubectl -n ing-private get ing wave -o yaml
-kubectl -n ing-private describe ing wave
-# Optional runtime test if DNS/host configured:
-# curl -I http://<ingress-address>/hello
+kubectl -n sound-zone get ingress whisper
+kubectl -n sound-zone describe ingress whisper
 ```

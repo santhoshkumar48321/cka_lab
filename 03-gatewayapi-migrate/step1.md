@@ -2,7 +2,7 @@
 
 1. Inspect the existing Ingress to confirm the backend service and host:
 ```bash
-kubectl get ingress api-ingress -o yaml
+kubectl get ingress secure-ingress -o yaml
 ```
 
 2. Check the available GatewayClass:
@@ -10,7 +10,7 @@ kubectl get ingress api-ingress -o yaml
 kubectl get gatewayclass
 ```
 
-3. Create Gateway `api-gateway` — fill in the blanks:
+3. Create Gateway `secure-gateway` — fill in the blanks:
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -20,13 +20,18 @@ metadata:
 spec:
   gatewayClassName: ___________
   listeners:
-  - name: http
-    protocol: HTTP
+  - name: https
+    protocol: HTTPS
     port: ___________
     hostname: ___________
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: ___________
+        kind: Secret
 ```
 
-4. Create HTTPRoute `api-route` — fill in the blanks:
+4. Create HTTPRoute `secure-route` — fill in the blanks:
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -42,14 +47,20 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: ___________
+        value: /
     backendRefs:
     - name: ___________
       port: ___________
 ```
 
+## Hints
+```bash
+kubectl get gatewayclass nginx-gateway -o yaml
+kubectl get secret api-tls -o yaml
+```
+
 ## Verify
 ```bash
-kubectl get gateway api-gateway -n default
-kubectl get httproute api-route -n default -o yaml
+kubectl get gateway secure-gateway -n default
+kubectl get httproute secure-route -n default -o yaml
 ```

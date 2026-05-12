@@ -1,3 +1,6 @@
+## Scenario
+A backend service in namespace echo is currently reachable from any pod in the cluster. A new security policy requires that ONLY pods in the team-app namespace can reach it on port 9000.
+
 ## Context
 There are pods in namespace `echo` that expose port 9000. Only pods from one namespace should reach them.
 

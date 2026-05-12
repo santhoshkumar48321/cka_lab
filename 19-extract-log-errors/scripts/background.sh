@@ -32,11 +32,11 @@ spec:
     args:
     - |
       while true; do
-        echo "INFO processing payment request id=1234" >> /var/log/app.log
-        echo "error file-not-found: receipt_1234.pdf" >> /var/log/app.log
-        echo "INFO payment completed successfully" >> /var/log/app.log
-        echo "error file-not-found: invoice_5678.pdf" >> /var/log/app.log
-        echo "INFO request completed" >> /var/log/app.log
+        echo "INFO processing payment request id=1234" | tee -a /var/log/app.log
+        echo "error file-not-found: receipt_1234.pdf" | tee -a /var/log/app.log
+        echo "INFO payment completed successfully" | tee -a /var/log/app.log
+        echo "error file-not-found: invoice_5678.pdf" | tee -a /var/log/app.log
+        echo "INFO request completed" | tee -a /var/log/app.log
         sleep 2
       done
     volumeMounts:

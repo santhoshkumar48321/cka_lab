@@ -1,21 +1,26 @@
+## Scenario
+The web-app Deployment in the frontend namespace is running but has no persistent storage. A retained PersistentVolume already exists with 500Mi capacity. You need to claim it with a PVC and attach it to the existing Deployment.
+
 ## Goal
-Create a PVC, mount it into a Pod, then expand the PVC and record the change.
+Create PVC web-pvc in the frontend namespace, bind it to the existing PV web-pv, and modify the web-app Deployment to mount it at /usr/share/nginx/html.
+
+## What exists when the scenario starts
+
+| Resource | Type | Namespace | Notes |
+|---|---|---|---|
+| `web-app` | Deployment | `frontend` | nginx:latest, 1 replica, NO persistent storage |
+| `web-pv` | PersistentVolume | cluster | 500Mi, Retain, Available, storageClass: manual |
 
 ## Requirements
-1. Create a PersistentVolumeClaim:
-   - Name: `site-content`
-   - StorageClass: `csi-hostpath-sc`
-   - AccessMode: `ReadWriteOnce`
-   - Size: `12Mi`
 
-2. Create a Pod that mounts the PVC:
-   - Pod name: `nginx-site`
-   - Image: `nginx:1.27`
-   - Mount path: `/usr/share/nginx/html`
-   - Mount the PVC as a volume
+| Field | Value |
+|---|---|
+| PVC name | `web-pvc` |
+| Namespace | `frontend` |
+| Storage request | `250Mi` |
+| StorageClass | `manual` |
+| Access mode | `ReadWriteOnce` |
+| Mount path | `/usr/share/nginx/html` |
+| Deployment | `web-app` (modify — do NOT recreate) |
 
-3. Expand the PVC to:
-   - New size: `80Mi`
-
-4. Record the change by saving the PVC YAML after resize to:
-   - `/opt/CKA2026/resize-record.yaml`
+> **Important**: Modify the existing web-app Deployment — do not delete and recreate it.

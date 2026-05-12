@@ -11,50 +11,52 @@ wait_kube() {
   echo "Kubernetes API not ready after 60 seconds" >&2
   exit 1
 }
+
 wait_kube
 
-kubectl create namespace ing-private --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace sound-zone --dry-run=client -o yaml | kubectl apply -f -
 
-# Use a real echo server that listens on port 5678
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello
-  namespace: ing-private
+  name: soundserver
+  namespace: sound-zone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello
+      app: soundserver
   template:
     metadata:
       labels:
-        app: hello
+        app: soundserver
     spec:
       containers:
-      - name: hello
-        image: hashicorp/http-echo:latest
-        args:
-        - "-listen=:5678"
-        - "-text=Hello from ing-private!"
+      - name: nginx
+        image: nginx:latest
         ports:
-        - containerPort: 5678
+        - containerPort: 9090
 YAML
 
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello
-  namespace: ing-private
+  name: soundserver-svc
+  namespace: sound-zone
 spec:
   type: ClusterIP
   selector:
-    app: hello
+    app: soundserver
   ports:
-  - port: 5678
-    targetPort: 5678
+  - port: 9090
+    targetPort: 9090
 YAML
+
+# Add hosts entry for mydemo.local
+if ! grep -q 'mydemo.local' /etc/hosts; then
+  echo "127.0.0.1 mydemo.local" >> /etc/hosts
+fi
 
 echo "Setup complete"

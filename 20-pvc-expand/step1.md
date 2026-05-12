@@ -1,65 +1,61 @@
 ## Tasks
 
-### Step 1 — Create PVC `site-content` (12Mi, csi-hostpath-sc, RWO)
+### Step 1 — Inspect existing resources
 ```bash
-kubectl apply -f - <<EOF
+kubectl get pv web-pv
+kubectl -n frontend get deployment web-app -o yaml
+```
+
+### Step 2 — Create PVC web-pvc in the frontend namespace
+```yaml
+# Skeleton — fill in the blanks
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: site-content
+  name: ___________
+  namespace: ___________
 spec:
   accessModes:
-  - ReadWriteOnce
-  storageClassName: csi-hostpath-sc
+  - ___________
   resources:
     requests:
-      storage: 12Mi
-EOF
-
-# Confirm it binds immediately:
-kubectl get pvc site-content
+      storage: ___________
+  storageClassName: ___________
 ```
 
-### Step 2 — Create Pod `nginx-site` mounting the PVC
+### Step 3 — Verify PVC is Bound
 ```bash
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-site
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.27
-    volumeMounts:
-    - name: site-data
-      mountPath: /usr/share/nginx/html
-  volumes:
-  - name: site-data
-    persistentVolumeClaim:
-      claimName: site-content
-EOF
-kubectl get pod nginx-site
+kubectl -n frontend get pvc web-pvc
+# STATUS should show Bound
 ```
 
-### Step 3 — Expand PVC to 80Mi
+### Step 4 — Edit Deployment web-app to add the volume mount (DO NOT recreate)
 ```bash
-kubectl patch pvc site-content -p '{"spec":{"resources":{"requests":{"storage":"80Mi"}}}}'
-kubectl get pvc site-content
+kubectl -n frontend edit deployment web-app
+```
+Add a volume and volumeMount:
+```yaml
+# Under spec.template.spec.volumes (at spec level, not inside containers):
+volumes:
+- name: web-storage
+  persistentVolumeClaim:
+    claimName: web-pvc
+
+# Under spec.template.spec.containers[0].volumeMounts:
+volumeMounts:
+- name: web-storage
+  mountPath: /usr/share/nginx/html
 ```
 
-### Step 4 — Save YAML record after resize
+## Hints
 ```bash
-mkdir -p /opt/CKA2026
-kubectl get pvc site-content -o yaml > /opt/CKA2026/resize-record.yaml
-grep storage /opt/CKA2026/resize-record.yaml
+kubectl get pv web-pv -o yaml
+kubectl -n frontend get pvc
 ```
-
-> **Exam tip**: In real clusters with a CSI driver that supports expansion, the filesystem is also expanded. The `status.capacity` field reflects the actual provisioned size. Here we use static provisioning — the spec update is what matters for verification.
 
 ## Verify
 ```bash
-kubectl get pvc site-content
-kubectl get pod nginx-site
-grep -n 'storage:' /opt/CKA2026/resize-record.yaml
+kubectl -n frontend get pvc web-pvc
+kubectl get pv web-pv -o jsonpath='{.status.phase}'
+kubectl -n frontend get deployment web-app -o jsonpath='{.spec.template.spec.volumes}'
 ```

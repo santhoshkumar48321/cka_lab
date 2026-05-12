@@ -1,3 +1,6 @@
+## Scenario
+A production node has been tainted to reserve it exclusively for production workloads. You need to schedule a pod that tolerates this taint so it can land on the reserved node.
+
 ## Goal
 Reserve a node for production workloads using a taint, then schedule a pod that tolerates it.
 

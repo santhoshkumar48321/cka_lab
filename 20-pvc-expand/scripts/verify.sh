@@ -1,41 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get pvc site-content -n default >/dev/null 2>&1; then
-  echo "PVC 'site-content' not found"
+if ! kubectl get pvc web-pvc -n frontend >/dev/null 2>&1; then
+  echo "PVC 'web-pvc' not found in namespace 'frontend'"
   exit 1
 fi
 
-phase=$(kubectl get pvc site-content -n default -o jsonpath='{.status.phase}')
-if ! test "$phase" = "Bound"; then
-  echo "PVC 'site-content' is not Bound (status: $phase)"
+pvc_phase=$(kubectl get pvc web-pvc -n frontend -o jsonpath='{.status.phase}')
+if ! test "$pvc_phase" = "Bound"; then
+  echo "PVC 'web-pvc' must be Bound, got: $pvc_phase"
   exit 1
 fi
 
-req=$(kubectl get pvc site-content -n default -o jsonpath='{.spec.resources.requests.storage}')
-# Accept 80Mi or greater (in Mi or Gi)
-if ! echo "$req" | awk '
-/Gi$/ {exit 0}
-/Mi$/ {v=$0; sub(/Mi$/,"",v); if (v+0>=80) exit 0; else exit 1}
-{exit 1}
-'; then
-  echo "PVC 'site-content' must be expanded to at least 80Mi, current spec: $req"
+pvc_storage=$(kubectl get pvc web-pvc -n frontend -o jsonpath='{.spec.resources.requests.storage}')
+if ! test "$pvc_storage" = "250Mi"; then
+  echo "PVC 'web-pvc' storage request must be 250Mi, got: $pvc_storage"
   exit 1
 fi
 
-if ! kubectl get pod nginx-site -n default >/dev/null 2>&1; then
-  echo "Pod 'nginx-site' not found"
+pv_phase=$(kubectl get pv web-pv -o jsonpath='{.status.phase}' 2>/dev/null || echo "not-found")
+if ! test "$pv_phase" = "Bound"; then
+  echo "PV 'web-pv' must be Bound, got: $pv_phase"
   exit 1
 fi
 
-# Check PVC is mounted in the pod
-if ! kubectl get pod nginx-site -n default -o yaml | grep -q 'site-content'; then
-  echo "Pod 'nginx-site' must mount PVC 'site-content'"
+# Check deployment mounts a volume at /usr/share/nginx/html
+vol_mounts=$(kubectl get deployment web-app -n frontend \
+  -o jsonpath='{.spec.template.spec.containers[0].volumeMounts}' 2>/dev/null || echo "")
+if ! echo "$vol_mounts" | grep -q '/usr/share/nginx/html'; then
+  echo "Deployment 'web-app' must mount a volume at /usr/share/nginx/html"
   exit 1
 fi
 
-if ! test -s /opt/CKA2026/resize-record.yaml; then
-  echo "Missing or empty file: /opt/CKA2026/resize-record.yaml"
+# Check volume references web-pvc
+volumes=$(kubectl get deployment web-app -n frontend \
+  -o jsonpath='{.spec.template.spec.volumes}' 2>/dev/null || echo "")
+if ! echo "$volumes" | grep -q 'web-pvc'; then
+  echo "Deployment 'web-app' volume must reference PVC 'web-pvc'"
   exit 1
 fi
 

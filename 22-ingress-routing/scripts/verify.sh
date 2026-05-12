@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get ingress wave -n ing-private >/dev/null 2>&1; then
-  echo "Ingress 'wave' not found in namespace 'ing-private'"
+if ! kubectl get ingress whisper -n sound-zone >/dev/null 2>&1; then
+  echo "Ingress 'whisper' not found in namespace 'sound-zone'"
   exit 1
 fi
 
-ing_yaml="$(kubectl get ingress wave -n ing-private -o yaml)"
+ing_yaml="$(kubectl get ingress whisper -n sound-zone -o yaml)"
 
-if ! echo "$ing_yaml" | grep -q 'path: /hello'; then
-  echo "Ingress 'wave' must route path '/hello'"
+if ! echo "$ing_yaml" | grep -q 'mydemo.local'; then
+  echo "Ingress 'whisper' host must be 'mydemo.local'"
   exit 1
 fi
 
-if ! echo "$ing_yaml" | grep -q 'name: hello'; then
-  echo "Ingress 'wave' must route to service 'hello'"
+if ! echo "$ing_yaml" | grep -q 'path: /whisper'; then
+  echo "Ingress 'whisper' must route path '/whisper'"
   exit 1
 fi
 
-if ! echo "$ing_yaml" | grep -q 'number: 5678'; then
-  echo "Ingress 'wave' must route to service port 5678"
+if ! echo "$ing_yaml" | grep -q 'name: soundserver-svc'; then
+  echo "Ingress 'whisper' must route to service 'soundserver-svc'"
+  exit 1
+fi
+
+if ! echo "$ing_yaml" | grep -q 'number: 9090'; then
+  echo "Ingress 'whisper' must route to service port 9090"
   exit 1
 fi
 

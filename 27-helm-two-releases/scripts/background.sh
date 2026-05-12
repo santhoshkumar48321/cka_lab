@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+wait_kube() {
+  for i in $(seq 1 60); do
+    if kubectl get ns >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Kubernetes API not ready after 60 seconds" >&2
+  exit 1
+}
+
+wait_kube
+
+mkdir -p /home/candidate
+
+if ! command -v helm >/dev/null 2>&1; then
+  installer="/tmp/get-helm-3.sh"
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o "$installer"
+  bash "$installer"
+  rm -f "$installer"
+fi
+
+helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
+helm repo update 2>/dev/null || true
+
+echo "Setup complete"
