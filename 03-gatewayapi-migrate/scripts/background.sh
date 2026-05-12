@@ -88,24 +88,38 @@ spec:
   controllerName: nginx.org/gateway-controller
 YAML
 
-# Create backend resources before ingress
+# Generate TLS secret for api.zenhost.local
+if ! command -v openssl >/dev/null 2>&1; then
+  apt-get update -y
+  apt-get install -y openssl
+fi
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /tmp/api-tls.key -out /tmp/api-tls.crt \
+  -subj "/CN=api.zenhost.local/O=demo" \
+  -addext "subjectAltName=DNS:api.zenhost.local" 2>/dev/null
+
+kubectl create secret tls api-tls --cert=/tmp/api-tls.crt --key=/tmp/api-tls.key \
+  -n default --dry-run=client -o yaml | kubectl apply -f -
+
+# Create backend resources
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web
+  name: api-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web
+      app: api-backend
   template:
     metadata:
       labels:
-        app: web
+        app: api-backend
     spec:
       containers:
-      - name: web
+      - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
@@ -113,12 +127,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-svc
+  name: api-backend-svc
 spec:
   selector:
-    app: web
+    app: api-backend
   ports:
-  - port: 80
+  - port: 443
     targetPort: 80
 YAML
 
@@ -126,19 +140,23 @@ kubectl apply -f - <<'YAML'
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: api-ingress
+  name: secure-ingress
 spec:
+  tls:
+  - hosts:
+    - api.zenhost.local
+    secretName: api-tls
   rules:
-  - host: api.demo.k8s.local
+  - host: api.zenhost.local
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: web-svc
+            name: api-backend-svc
             port:
-              number: 80
+              number: 443
 YAML
 
 echo "Setup complete"

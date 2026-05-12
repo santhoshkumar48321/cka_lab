@@ -14,18 +14,14 @@ wait_kube() {
 
 wait_kube
 
-kubectl create namespace frontend --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace backend  --dry-run=client -o yaml | kubectl apply -f -
-
-kubectl label namespace frontend kubernetes.io/metadata.name=frontend --overwrite
-kubectl label namespace backend  kubernetes.io/metadata.name=backend  --overwrite
+kubectl create namespace project-x --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-app
-  namespace: frontend
+  name: frontend
+  namespace: project-x
 spec:
   replicas: 1
   selector:
@@ -38,16 +34,17 @@ spec:
     spec:
       containers:
       - name: app
-        image: busybox:1.36
-        command: ["/bin/sh", "-c", "sleep 3600"]
+        image: nginx:latest
+        ports:
+        - containerPort: 80
 YAML
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-api
-  namespace: backend
+  name: backend
+  namespace: project-x
 spec:
   replicas: 1
   selector:
@@ -62,7 +59,7 @@ spec:
       - name: app
         image: nginx:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080
 YAML
 
 echo "Setup complete"

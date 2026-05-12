@@ -1,33 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get service service-nodeport -n services >/dev/null 2>&1; then
-  echo "Service 'service-nodeport' not found in namespace 'services'"
+if ! kubectl get deployment ui-app -n dev-lab >/dev/null 2>&1; then
+  echo "Deployment 'ui-app' not found in namespace 'dev-lab'"
   exit 1
 fi
 
-svc_type="$(kubectl get service service-nodeport -n services -o jsonpath='{.spec.type}')"
+if ! kubectl get service ui-service -n dev-lab >/dev/null 2>&1; then
+  echo "Service 'ui-service' not found in namespace 'dev-lab'"
+  exit 1
+fi
+
+svc_type="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.type}')"
 if ! test "$svc_type" = "NodePort"; then
-  echo "Service 'service-nodeport' must be type NodePort, got: $svc_type"
+  echo "Service 'ui-service' must be type NodePort, got: $svc_type"
   exit 1
 fi
 
-# Check port 8080 exposed
-port="$(kubectl get service service-nodeport -n services -o jsonpath='{.spec.ports[0].port}')"
-if ! test "$port" = "8080"; then
-  echo "Service must expose port 8080, got: $port"
+port="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.ports[0].port}')"
+if ! test "$port" = "80"; then
+  echo "Service must expose port 80, got: $port"
   exit 1
 fi
 
-# Check deployment has containerPort 8080 named http
-cport="$(kubectl get deployment service-deployment -n services -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}')"
-cname="$(kubectl get deployment service-deployment -n services -o jsonpath='{.spec.template.spec.containers[0].ports[0].name}')"
-if ! test "$cport" = "8080"; then
-  echo "Container port must be 8080, got: $cport"
+node_port="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.ports[0].nodePort}')"
+if [ "$node_port" -lt 30000 ] || [ "$node_port" -gt 32767 ]; then
+  echo "NodePort must be in range 30000-32767, got: $node_port"
   exit 1
 fi
-if ! test "$cname" = "http"; then
-  echo "Container port must be named 'http', got: $cname"
+
+cport="$(kubectl get deployment ui-app -n dev-lab -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}')"
+if ! test "$cport" = "80"; then
+  echo "Container port must be 80, got: $cport"
   exit 1
 fi
 

@@ -26,4 +26,8 @@ if ! command -v helm >/dev/null 2>&1; then
   rm -f "$installer"
 fi
 
+# Pre-add the argo helm repo to save time
+helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
+helm repo update 2>/dev/null || true
+
 echo "Setup complete"

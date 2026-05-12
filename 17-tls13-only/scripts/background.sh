@@ -19,7 +19,7 @@ if ! command -v openssl >/dev/null 2>&1; then
   apt-get install -y openssl
 fi
 
-kubectl create namespace web --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace web-zone --dry-run=client -o yaml | kubectl apply -f -
 
 # Generate self-signed TLS cert
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
@@ -27,16 +27,16 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/CN=secure.demo.local/O=demo" \
   -addext "subjectAltName=DNS:secure.demo.local" 2>/dev/null
 
-kubectl create secret tls web-tls --cert=/tmp/tls.crt --key=/tmp/tls.key \
-  -n web --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret tls site-tls --cert=/tmp/tls.crt --key=/tmp/tls.key \
+  -n web-zone --dry-run=client -o yaml | kubectl apply -f -
 
 # Create nginx config allowing TLS 1.2 and 1.3 (user must restrict to 1.3 only)
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-tls-config
-  namespace: web
+  name: site-tls-config
+  namespace: web-zone
 data:
   nginx.conf: |
     events {}
@@ -55,17 +55,17 @@ kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-server
-  namespace: web
+  name: secure-site
+  namespace: web-zone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-server
+      app: secure-site
   template:
     metadata:
       labels:
-        app: web-server
+        app: secure-site
     spec:
       containers:
       - name: nginx
@@ -81,22 +81,22 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: nginx-tls-config
+          name: site-tls-config
       - name: certs
         secret:
-          secretName: web-tls
+          secretName: site-tls
 YAML
 
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-service
-  namespace: web
+  name: secure-site-svc
+  namespace: web-zone
 spec:
   type: ClusterIP
   selector:
-    app: web-server
+    app: secure-site
   ports:
   - port: 443
     targetPort: 443

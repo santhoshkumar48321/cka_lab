@@ -1,5 +1,5 @@
 {
-  "title": "Helm: Render Argo CD manifests (no CRDs)",
+  "title": "Cluster: Helm template two releases with and without CRDs",
   "details": {
     "intro": {
       "text": "intro.md",

@@ -1,3 +1,6 @@
+## Scenario
+A CI/CD pipeline needs limited Kubernetes permissions to deploy workloads. You must define a ClusterRole with minimal privileges and bind it to a ServiceAccount scoped to a single namespace.
+
 ## Context
 You need permissions for a deployment pipeline service account. It should only be effective inside a single namespace.
 

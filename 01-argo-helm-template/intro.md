@@ -1,19 +1,28 @@
 ## Scenario
-Your cluster has Argo CD CRDs pre-installed. You need to generate application manifests using Helm without re-installing those CRDs — otherwise `kubectl apply` would fail with a "CRD already exists" error.
+Your cluster has Argo CD CRDs pre-installed. You need to generate two sets of Helm manifests: one with CRDs (the full install) and one without CRDs (for clusters where they are already present). This is a common pattern in GitOps pipelines.
 
 ## Goal
-Render the Argo CD Helm chart to a local YAML file, skipping CRD generation.
+Render the Argo CD Helm chart twice — once with CRDs enabled (default) and once with CRDs disabled — and save each to a separate file.
 
-## What exists in the cluster when you start
+## What exists when the scenario starts
 
 | Resource | Type | Notes |
 |---|---|---|
 | `helm` | CLI tool | Pre-installed on the node |
+| `/home/candidate` | Directory | Output directory, pre-created |
 
 ## Requirements
-- Add Helm repo name: `argocd-repo`
-- Render chart version: **7.6.8**
-- Namespace: `gitops`
-- Save output to: `/home/candidate/argocd-manifest.yaml`
-- Output must **not** contain any `CustomResourceDefinition` resource
-- Do **not** apply/install to the cluster
+
+| Field | Value |
+|---|---|
+| Helm repo name | `argo` |
+| Helm repo URL | `https://argoproj.github.io/argo-helm` |
+| Chart | `argo/argo-cd` |
+| Chart version | `8.0.17` |
+| Output file 1 | `/home/candidate/argo-cd-crds-enabled.yaml` |
+| Namespace for file 1 | `argocd` |
+| File 1 constraint | Must CONTAIN `CustomResourceDefinition` resources |
+| Output file 2 | `/home/candidate/argo-cd-crds-disabled.yaml` |
+| Namespace for file 2 | `argocd-no-crds` |
+| File 2 constraint | Must NOT contain any `CustomResourceDefinition` |
+| Do NOT | Apply/install to the cluster |

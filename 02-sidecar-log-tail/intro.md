@@ -1,18 +1,24 @@
 ## Scenario
-A webapp container writes application logs to a file on disk (`/var/log/application.log`). You need to make those logs visible via `kubectl logs` without modifying the main container — a classic sidecar pattern.
+The myapp Deployment writes logs to /opt/logs.txt inside its container. Currently there is no way to view these logs with kubectl logs. You need to add a sidecar that streams the file to stdout.
 
 ## Goal
-Add a `log-reader` sidecar container to the `webapp` Deployment so its stdout streams the log file.
+Add a logshipper sidecar container to the myapp Deployment so its stdout streams /opt/logs.txt — without modifying or deleting the original myapp container.
 
-## What exists in the cluster when you start
+## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `webapp` | Deployment | `default` | 1 replica, `busybox:1.36`, writes to `/var/log/application.log` via a shared emptyDir volume |
+| `myapp` | Deployment | `default` | 1 replica, `busybox:1.36`, writes to `/opt/logs.txt` via shared emptyDir volume `data` |
 
 ## Requirements
-- Deployment: `webapp`
-- Sidecar name: `log-reader`
-- Sidecar image: `busybox:1.36`
-- Command: `/bin/sh -c "tail -f /var/log/application.log"`
-- The volume must be mounted at `/var/log` in **both** containers
+
+| Field | Value |
+|---|---|
+| Deployment | `myapp` |
+| Sidecar name | `logshipper` |
+| Sidecar image | `alpine:latest` |
+| Command | `tail -f /opt/logs.txt` |
+| Shared volume name | `data` |
+| Volume mount path | `/opt` (both containers) |
+| Constraint | Do NOT modify or delete the `myapp` container |
+| Constraint | `logshipper` must be a sidecar, not an initContainer |

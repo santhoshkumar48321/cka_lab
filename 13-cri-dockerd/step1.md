@@ -2,20 +2,26 @@
 
 ### Step 1 — Install cri-dockerd from the pre-downloaded .deb
 ```bash
-dpkg -i ~/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb
+dpkg -i /root/cri-dockerd_0.3.9.3-0.ubuntu-focal_amd64.deb
 ```
 
-### Step 2 — Enable and start the cri-docker service
+### Step 2 — Enable and start BOTH cri-docker services
 ```bash
-# Enable so it starts on reboot, then start it now:
-systemctl enable cri-docker
-systemctl start cri-docker
-systemctl is-active cri-docker
+# Enable and start the main service:
+systemctl enable --now cri-docker.service
+
+# Enable and start the socket:
+systemctl enable --now cri-docker.socket
 ```
 
-> **Tip**: Use `systemctl enable --now cri-docker` to enable and start in one command.
+### Step 3 — Verify both services are active
+```bash
+systemctl is-active cri-docker.service
+systemctl is-active cri-docker.socket
+ls -la /var/run/cri-dockerd.sock
+```
 
-### Step 3 — Apply required sysctl values
+### Step 4 — Apply required sysctl values
 ```bash
 # Apply all four required parameters:
 sysctl -w net.bridge.bridge-nf-call-iptables=1
@@ -35,6 +41,8 @@ EOF
 ## Verify
 ```bash
 dpkg -l | grep cri-dockerd
-systemctl is-active cri-docker
+systemctl is-active cri-docker.service
+systemctl is-active cri-docker.socket
+ls -la /var/run/cri-dockerd.sock
 sysctl net.bridge.bridge-nf-call-iptables net.ipv6.conf.all.forwarding net.ipv4.ip_forward net.netfilter.nf_conntrack_max
 ```

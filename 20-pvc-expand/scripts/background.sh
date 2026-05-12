@@ -11,39 +11,59 @@ wait_kube() {
   echo "Kubernetes API not ready after 60 seconds" >&2
   exit 1
 }
+
 wait_kube
 
-mkdir -p /opt/CKA2026
-mkdir -p /mnt/site-content-pv
+mkdir -p /mnt/web-data
 
-# ── StorageClass with allowVolumeExpansion=true (static provisioning) ──
+kubectl create namespace frontend --dry-run=client -o yaml | kubectl apply -f -
+
 kubectl apply -f - <<'YAML'
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: csi-hostpath-sc
+  name: manual
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: Immediate
-allowVolumeExpansion: true
 reclaimPolicy: Retain
 YAML
 
-# ── Pre-created PersistentVolume (hostPath, 200Mi) ──
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: site-content-pv
+  name: web-pv
 spec:
   capacity:
-    storage: 200Mi
+    storage: 500Mi
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: csi-hostpath-sc
+  storageClassName: manual
   hostPath:
-    path: /mnt/site-content-pv
+    path: /mnt/web-data
     type: DirectoryOrCreate
+YAML
+
+kubectl apply -f - <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
 YAML
 
 echo "Setup complete"

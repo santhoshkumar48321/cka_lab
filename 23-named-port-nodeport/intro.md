@@ -1,3 +1,6 @@
+## Scenario
+A frontend Deployment needs to be updated with an explicit named port spec before a NodePort Service can reference it by name. This allows the Service to target the container port symbolically rather than by number.
+
 ## Goal
 Reconfigure an existing Deployment to expose a named port, then create a NodePort Service using that named port.
 

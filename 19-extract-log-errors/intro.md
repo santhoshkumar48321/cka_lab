@@ -1,3 +1,6 @@
+## Scenario
+A production pod writes structured logs to a file. The operations team needs to extract only the error-level lines from those logs for incident analysis without access to the container filesystem.
+
 ## Goal
 Monitor logs of a Pod and extract only the error lines matching a pattern.
 

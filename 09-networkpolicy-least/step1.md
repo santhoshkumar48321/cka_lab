@@ -1,31 +1,18 @@
 ## Tasks
 
-Create NetworkPolicies to allow ONLY `frontend-app` → `backend-api` traffic on port 80, blocking everything else.
-
-### Step 1 — Check namespace labels
+1. Inspect the existing Deployments in project-x namespace:
 ```bash
-kubectl get namespace frontend backend --show-labels
+kubectl get deployments -n project-x
+kubectl get pods -n project-x --show-labels
 ```
 
-### Step 2 — Default-deny all ingress to `backend` namespace (fill in the blanks)
+2. Create a default-deny NetworkPolicy for backend pods in project-x:
 ```yaml
+# Skeleton — fill in the blanks
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: default-deny-ingress
-  namespace: ___________
-spec:
-  podSelector: {}        # selects ALL pods in the namespace
-  policyTypes:
-  - ___________
-```
-
-### Step 3 — Allow ingress from `frontend` namespace only (fill in the blanks)
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-from-frontend
+  name: backend-allow-frontend
   namespace: ___________
 spec:
   podSelector:
@@ -35,19 +22,24 @@ spec:
   - Ingress
   ingress:
   - from:
-    - namespaceSelector:
+    - podSelector:
         matchLabels:
-          kubernetes.io/metadata.name: ___________
+          app: ___________
     ports:
     - protocol: TCP
       port: ___________
 ```
 
-> **Tip**: NetworkPolicies are **additive**. A default-deny policy + an allow policy = least-permissive. Without the default-deny, traffic from other pods is still allowed.
+## Hints
+```bash
+# Check existing pods and their labels
+kubectl -n project-x get pods --show-labels
+# Both frontend and backend are in the SAME namespace project-x
+# Use podSelector (not namespaceSelector) for the from rule
+```
 
 ## Verify
 ```bash
-kubectl get netpol -n backend
-kubectl -n backend describe netpol allow-from-frontend
-kubectl -n backend describe netpol default-deny-ingress
+kubectl get networkpolicy -n project-x
+kubectl describe networkpolicy -n project-x
 ```

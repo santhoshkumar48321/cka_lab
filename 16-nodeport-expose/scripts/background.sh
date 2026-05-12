@@ -14,26 +14,26 @@ wait_kube() {
 
 wait_kube
 
-kubectl create namespace services --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace dev-lab --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-deployment
-  namespace: services
+  name: ui-app
+  namespace: dev-lab
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: service-deployment
+      app: ui-app
   template:
     metadata:
       labels:
-        app: service-deployment
+        app: ui-app
     spec:
       containers:
-      - name: app
+      - name: nginx
         image: nginx:latest
 YAML
 

@@ -1,19 +1,28 @@
 ## Scenario
-Your team is migrating from the deprecated `networking.k8s.io/v1` Ingress API to the newer Gateway API. The cluster already has Gateway API CRDs and a `GatewayClass` installed. An existing `Ingress` routes traffic for `api.demo.k8s.local` to the `web-svc` backend.
+Your application is currently exposed via Ingress secure-ingress using HTTPS on api.zenhost.local. The company is migrating to the Gateway API while keeping HTTPS access active. You must recreate the routing using a Gateway and HTTPRoute.
 
 ## Goal
-Create a `Gateway` and an `HTTPRoute` that replicate the same routing behaviour as the existing Ingress.
+Create a Gateway and an HTTPRoute that replicate the same HTTPS routing behaviour as the existing Ingress for host api.zenhost.local.
 
-## What exists in the cluster when you start
+## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `api-ingress` | Ingress | `default` | Routes `api.demo.k8s.local /` → `web-svc:80` |
-| `web` | Deployment | `default` | nginx:latest, port 80 |
-| `web-svc` | Service | `default` | ClusterIP, port 80 |
-| `nginx-gateway` | GatewayClass | cluster-scoped | controller: `nginx.org/gateway-controller` |
+| `secure-ingress` | Ingress | `default` | host: api.zenhost.local, TLS secret: api-tls, path / → api-backend-svc:443 |
+| `api-backend-svc` | Service | `default` | ClusterIP port 443 |
+| `api-tls` | Secret | `default` | TLS cert for api.zenhost.local |
+| `nginx-gateway` | GatewayClass | cluster | controller: nginx.org/gateway-controller |
 
 ## Requirements
-- Create Gateway `api-gateway` in namespace `default` using GatewayClass `nginx-gateway` with an HTTP listener on port `80`.
-- Create HTTPRoute `api-route` in namespace `default`.
-- Route host `api.demo.k8s.local` path `/` to backend service `web-svc:80`.
+
+| Field | Value |
+|---|---|
+| Gateway name | `secure-gateway` |
+| Gateway namespace | `default` |
+| GatewayClass | `nginx-gateway` |
+| HTTPS listener port | `443` |
+| TLS secret reference | `api-tls` |
+| HTTPRoute name | `secure-route` |
+| Hostname | `api.zenhost.local` |
+| Backend service | `api-backend-svc` |
+| Backend port | `443` |

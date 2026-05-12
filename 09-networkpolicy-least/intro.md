@@ -1,18 +1,24 @@
 ## Scenario
-The `backend` namespace hosts an API service that is currently reachable from **all** pods in the cluster. A security review requires that only pods in the `frontend` namespace are allowed to reach it — all other traffic must be blocked.
+In the project-x namespace, two Deployments run side by side. Currently all pods can communicate freely. Security requires that ONLY frontend pods may reach backend pods on port 8080. All other traffic — including from outside the namespace — must be blocked.
 
 ## Goal
-Apply a least-permissive NetworkPolicy strategy in the `backend` namespace: default-deny all ingress, then explicitly allow only `frontend` pods.
+Apply a least-permissive NetworkPolicy in the project-x namespace: deny all ingress to backend pods, then explicitly allow only frontend pods on port 8080.
 
-## What exists in the cluster when you start
+## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `frontend` | Namespace | — | label `kubernetes.io/metadata.name=frontend` |
-| `backend` | Namespace | — | label `kubernetes.io/metadata.name=backend` |
-| `frontend-app` | Deployment | `frontend` | pods labeled `app=frontend` |
-| `backend-api` | Deployment | `backend` | pods labeled `app=backend`, port 80 |
+| `frontend` | Deployment | `project-x` | pods labeled `app=frontend` |
+| `backend` | Deployment | `project-x` | pods labeled `app=backend`, port 8080 |
 
 ## Requirements
-- Create a **default-deny** NetworkPolicy in namespace `backend` blocking all ingress
-- Create an **allow** NetworkPolicy in namespace `backend` permitting ingress from the `frontend` namespace to port 80
+
+| Field | Value |
+|---|---|
+| Namespace | `project-x` |
+| Policy selector | pods with label `app=backend` |
+| Allow from | pods with label `app=frontend` (same namespace) |
+| Allow port | TCP 8080 |
+| Block | all other ingress |
+
+> **Key constraint**: Both Deployments are in THE SAME namespace: `project-x`
