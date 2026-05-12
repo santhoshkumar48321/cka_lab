@@ -4,38 +4,56 @@
 2. Update the repo cache
 3. Render the chart with CRDs ENABLED (default) and save to file 1
 4. Render the chart with CRDs DISABLED and save to file 2
+5. Apply the no-CRDs manifest to the cluster
+
+---
 
 ## Hints
 
 ```bash
-# Add the repo (fill in the correct URL)
+# Task 1-2: Add repo and update cache
 helm repo add argo <HELM_REPO_URL>
 helm repo update
 
-# Render with CRDs ENABLED (default behaviour):
+# Task 3: Render with CRDs ENABLED (default behaviour)
 helm template argocd argo/argo-cd \
   --version <VERSION> \
   --namespace argocd \
   > /home/candidate/argo-cd-crds-enabled.yaml
 
-# Render with CRDs DISABLED (fill in the flag):
+# Task 4: Render with CRDs DISABLED (fill in the flag)
 helm template argocd argo/argo-cd \
   --version <VERSION> \
   --namespace argocd-no-crds \
   --<FLAG_TO_SKIP_CRDS> \
   > /home/candidate/argo-cd-crds-disabled.yaml
+
+# Task 5: Create the target namespace, then apply the no-CRDs manifest.
+# The cluster already has Argo CD CRDs installed — applying the no-CRDs
+# file is the safe, idempotent way to deploy without CRD conflicts.
+kubectl create namespace ___________
+kubectl apply -f /home/candidate/argo-cd-crds-disabled.yaml
 ```
 
-> **Hint**: The flag to skip CRDs is `--set crds.install=false` or `--skip-crds`. The chart URL is `https://argoproj.github.io/argo-helm`.
+> **Hint — which flag?** Use `--set crds.install=false` **or** `--skip-crds`.
+> The chart repo URL is `https://argoproj.github.io/argo-helm`.
+> After applying, watch pods with `kubectl -n argocd-no-crds get pods -w`.
 
 ## Verify
+
 ```bash
+# Files exist and have content
 ls -lh /home/candidate/argo-cd-crds-enabled.yaml
 ls -lh /home/candidate/argo-cd-crds-disabled.yaml
 
-# File 1 should contain CRDs:
+# File 1 must contain CRDs
 grep -c 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-enabled.yaml
 
-# File 2 should NOT contain CRDs:
-grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml && echo "❌ CRDs found" || echo "✅ No CRDs"
+# File 2 must NOT contain CRDs
+grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml \
+  && echo "❌ CRDs found" || echo "✅ No CRDs"
+
+# Namespace and deployment must exist after Task 5
+kubectl get namespace argocd-no-crds
+kubectl -n argocd-no-crds get deploy
 ```
