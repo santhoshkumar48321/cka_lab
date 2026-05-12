@@ -34,20 +34,20 @@ if ! kubectl get deployment myapp -n default \
   exit 1
 fi
 
-# Check logshipper command includes tail and /opt/logs.txt
+# Check logshipper command includes tail and /var/log/logs.txt
 logshipper_spec=$(kubectl get deployment myapp -n default -o yaml \
   | grep -A5 'name: logshipper')
 if ! echo "$logshipper_spec" | grep -qE 'tail|logs\.txt'; then
-  echo "logshipper command must include 'tail' and '/opt/logs.txt'"
+  echo "logshipper command must include 'tail' and '/var/log/logs.txt'"
   exit 1
 fi
 
-# Check both containers mount /opt
+# Check both containers mount /var/log
 missing=$(kubectl get deployment myapp -n default \
   -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .volumeMounts[*]}{.mountPath}{" "}{end}{"\n"}{end}' \
-  | grep -v '/opt' | grep -c . || true)
+  | grep -v '/var/log' | grep -c . || true)
 if [ "$missing" -ne 0 ]; then
-  echo "Both containers must mount the shared volume at /opt"
+  echo "Both containers must mount the shared volume at /var/log"
   exit 1
 fi
 
