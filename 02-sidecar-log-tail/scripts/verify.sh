@@ -35,10 +35,13 @@ if ! kubectl get deployment myapp -n default \
 fi
 
 # Check logshipper command includes tail and /var/log/logs.txt
-logshipper_spec=$(kubectl get deployment myapp -n default -o yaml \
-  | grep -A5 'name: logshipper')
-if ! echo "$logshipper_spec" | grep -qE 'tail|logs\.txt'; then
-  echo "logshipper command must include 'tail' and '/var/log/logs.txt'"
+# Use jsonpath directly — kubectl YAML outputs fields alphabetically so
+# 'command' appears BEFORE 'name:' and grep -A5 misses it entirely.
+logshipper_cmd=$(kubectl get deployment myapp -n default \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{.command}{.args}{"\n"}{end}' \
+  | grep '^logshipper:')
+if ! echo "$logshipper_cmd" | grep -qE 'tail|logs\.txt'; then
+  echo "logshipper command must run 'tail -f /var/log/logs.txt'"
   exit 1
 fi
 
