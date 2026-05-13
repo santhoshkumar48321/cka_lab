@@ -23,7 +23,7 @@ cpu_to_millicores() {
     echo "${cpu%m}"
     return
   fi
-  awk "BEGIN {printf \"%d\", $cpu * 1000}"
+  awk -v cpu="$cpu" 'BEGIN {printf "%d", cpu * 1000}'
 }
 
 mem_to_mib() {
