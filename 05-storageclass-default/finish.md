@@ -6,6 +6,6 @@ You practiced creating a StorageClass and designating it as the cluster default 
 
 **CKA Domain**: Storage
 
-**Common mistake to avoid**: Setting `is-default-class: "true"` when another StorageClass is already marked as default — having two default StorageClasses causes inconsistent PVC binding behavior and may be penalised.
+**Common mistake to avoid**: With `WaitForFirstConsumer`, the PVC stays Pending until a Pod is created — this is normal.
 
 **Further reading**: https://kubernetes.io/docs/concepts/storage/storage-classes/#default-storageclass

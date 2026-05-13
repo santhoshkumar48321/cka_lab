@@ -11,20 +11,18 @@ wait_kube() {
   echo "Kubernetes API not ready after 60 seconds" >&2
   exit 1
 }
+
 wait_kube
 
-mkdir -p /home/candidate
-
-# ── Install a representative set of Istio CRDs inline (no network dependency) ──
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: virtualservices.networking.istio.io
+  name: certificates.cert-manager.io
 spec:
-  group: networking.istio.io
+  group: cert-manager.io
   versions:
-  - name: v1beta1
+  - name: v1
     served: true
     storage: true
     schema:
@@ -33,40 +31,53 @@ spec:
         properties:
           spec:
             type: object
-            description: "Configuration affecting label/content routing, gateways, and TLS SNI."
             properties:
-              hosts:
-                description: "The destination hosts to which traffic is being sent. Could be a DNS name with wildcard prefix or an IP address. Depending on the platform, short-names can also be used instead of a FQDN."
-                type: array
-                items:
-                  type: string
-              gateways:
-                description: "The names of gateways and sidecars that should apply these rules."
-                type: array
-                items:
-                  type: string
-              http:
-                description: "An ordered list of route rules for HTTP traffic."
-                type: array
-                items:
-                  type: object
-                  x-kubernetes-preserve-unknown-fields: true
+              subject:
+                type: object
+                description: "Subject distinguished name fields (organization, country, locality, etc.) used when issuing the certificate."
+                properties:
+                  organizations:
+                    type: array
+                    items:
+                      type: string
+                  countries:
+                    type: array
+                    items:
+                      type: string
+                  organizationalUnits:
+                    type: array
+                    items:
+                      type: string
+                  localities:
+                    type: array
+                    items:
+                      type: string
+                  provinces:
+                    type: array
+                    items:
+                      type: string
+                  streetAddresses:
+                    type: array
+                    items:
+                      type: string
+                  postalCodes:
+                    type: array
+                    items:
+                      type: string
   scope: Namespaced
   names:
-    plural: virtualservices
-    singular: virtualservice
-    kind: VirtualService
-    shortNames:
-    - vs
+    plural: certificates
+    singular: certificate
+    kind: Certificate
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: destinationrules.networking.istio.io
+  name: issuers.cert-manager.io
 spec:
-  group: networking.istio.io
+  group: cert-manager.io
   versions:
-  - name: v1beta1
+  - name: v1
     served: true
     storage: true
     schema:
@@ -75,20 +86,38 @@ spec:
         x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced
   names:
-    plural: destinationrules
-    singular: destinationrule
-    kind: DestinationRule
-    shortNames:
-    - dr
+    plural: issuers
+    singular: issuer
+    kind: Issuer
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: gateways.networking.istio.io
+  name: clusterissuers.cert-manager.io
 spec:
-  group: networking.istio.io
+  group: cert-manager.io
   versions:
-  - name: v1beta1
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        x-kubernetes-preserve-unknown-fields: true
+  scope: Cluster
+  names:
+    plural: clusterissuers
+    singular: clusterissuer
+    kind: ClusterIssuer
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: certificaterequests.cert-manager.io
+spec:
+  group: cert-manager.io
+  versions:
+  - name: v1
     served: true
     storage: true
     schema:
@@ -97,29 +126,9 @@ spec:
         x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced
   names:
-    plural: gateways
-    singular: gateway
-    kind: Gateway
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: serviceentries.networking.istio.io
-spec:
-  group: networking.istio.io
-  versions:
-  - name: v1beta1
-    served: true
-    storage: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        x-kubernetes-preserve-unknown-fields: true
-  scope: Namespaced
-  names:
-    plural: serviceentries
-    singular: serviceentry
-    kind: ServiceEntry
+    plural: certificaterequests
+    singular: certificaterequest
+    kind: CertificateRequest
 YAML
 
 echo "Setup complete"

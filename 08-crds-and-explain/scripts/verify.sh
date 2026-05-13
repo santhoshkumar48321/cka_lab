@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! test -s /root/crds-list.yaml; then
-  echo "Missing or empty file: ~/crds-list.yaml"
+crds_file="$HOME/crds-list.txt"
+subject_file="$HOME/subject-explain.txt"
+
+if ! test -s "$crds_file"; then
+  echo "Missing or empty file: $crds_file"
   exit 1
 fi
 
-if ! grep -q 'istio.io' /root/crds-list.yaml; then
-  echo "~/crds-list.yaml must contain Istio CRD entries"
+if ! grep -q 'cert-manager.io' "$crds_file"; then
+  echo "$crds_file must contain cert-manager.io CRD entries"
   exit 1
 fi
 
-if ! test -s /root/hosts-spec.yaml; then
-  echo "Missing or empty file: ~/hosts-spec.yaml"
+if ! test -s "$subject_file"; then
+  echo "Missing or empty file: $subject_file"
   exit 1
 fi
 
-if ! grep -qi 'hosts\|VirtualService' /root/hosts-spec.yaml; then
-  echo "~/hosts-spec.yaml must contain kubectl explain output for VirtualService.spec.hosts"
+if ! grep -qi 'subject\|Certificate' "$subject_file"; then
+  echo "$subject_file must contain kubectl explain output for Certificate.spec.subject"
   exit 1
 fi
 

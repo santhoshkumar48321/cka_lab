@@ -1,7 +1,11 @@
-## Nice work ✅
+## Well done! 🎉
 
-If you want to repeat: use the **Restart Scenario** button to reset the environment.
+You practiced installing cri-dockerd, enabling the service and socket, and confirming the required sysctl settings.
 
-Tips:
-- Keep `kubectl get all -A` and `kubectl describe` close.
-- Prove success with the verification commands, not vibes 😄
+**Why it matters on the CKA exam**: Runtime configuration and node networking prerequisites are key Cluster Architecture skills.
+
+**CKA Domain**: Cluster Architecture, Installation & Configuration
+
+**Common mistake to avoid**: Forgetting to enable IP forwarding sysctls, or enabling the service but not the socket.
+
+**Further reading**: https://kubernetes.io/docs/setup/production-environment/container-runtimes/

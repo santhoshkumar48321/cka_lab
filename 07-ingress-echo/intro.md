@@ -14,6 +14,7 @@ Create a ClusterIP Service and an Ingress resource to expose the `app` Deploymen
 - Namespace: `demo-app`
 - Service name: `app-service`, type `ClusterIP`, service port `8090`, targetPort `80`
 - Ingress name: `app-ingress`
+- ingressClassName: `nginx` (use the existing IngressClass)
 - Host: `demo.example.com`
 - Path: `/api` (pathType: `Prefix`)
 - Backend: `app-service:8090`

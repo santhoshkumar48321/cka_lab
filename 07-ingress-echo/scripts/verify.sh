@@ -22,6 +22,11 @@ if ! echo "$ing_yaml" | grep -q 'demo.example.com'; then
   echo "Ingress must use host 'demo.example.com'"
   exit 1
 fi
+ing_class="$(kubectl get ingress app-ingress -n demo-app -o jsonpath='{.spec.ingressClassName}')"
+if ! test "$ing_class" = "nginx"; then
+  echo "Ingress must set ingressClassName 'nginx', got: $ing_class"
+  exit 1
+fi
 if ! echo "$ing_yaml" | grep -q 'path: /api'; then
   echo "Ingress must route path '/api'"
   exit 1

@@ -6,6 +6,6 @@ You practiced migrating a classic Ingress resource to the Gateway API — a mode
 
 **CKA Domain**: Services & Networking
 
-**Common mistake to avoid**: Using the wrong `gatewayClassName` value — it must match exactly: `nginx-gateway`. The controller ignores Gateways with an unknown class, so nothing will work and there will be no obvious error message.
+**Common mistake to avoid**: Using the wrong `gatewayClassName` or forgetting `parentRefs` in the HTTPRoute.
 
 **Further reading**: https://kubernetes.io/docs/concepts/services-networking/gateway/
