@@ -6,6 +6,6 @@ You practiced implementing a least-permissive NetworkPolicy strategy using a def
 
 **CKA Domain**: Services & Networking
 
-**Common mistake to avoid**: Creating only the allow policy without the default-deny — without default-deny, all other pods in the cluster can still reach the backend because Kubernetes allows all traffic by default when no policies apply.
+**Common mistake to avoid**: Missing a podSelector for same-namespace traffic and using a namespaceSelector instead.
 
 **Further reading**: https://kubernetes.io/docs/concepts/services-networking/network-policies/

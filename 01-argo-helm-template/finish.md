@@ -6,6 +6,6 @@ You practiced the full GitOps Helm workflow: rendering manifests with and withou
 
 **CKA Domain**: Cluster Architecture, Installation & Configuration
 
-**Common mistake (real exam trap)**: Using `--skip-crds` on the *wrong* render — candidates often disable CRDs on the file they intend to apply but forget to also save a CRDs-included copy as the reference. The second trap is forgetting to create the target namespace before `kubectl apply`, causing every namespaced resource to fail.
+**Common mistake (real exam trap)**: Using `--skip-crds` on the wrong render and forgetting to save the output to a file.
 
 **Further reading**: https://helm.sh/docs/helm/helm_template/

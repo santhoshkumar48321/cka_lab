@@ -6,6 +6,6 @@ You practiced the sidecar log-streaming pattern — adding a secondary container
 
 **CKA Domain**: Workloads & Scheduling
 
-**Common mistake to avoid**: Forgetting to add the `volumeMount` to the **existing** main container — both containers must mount the same volume at `/var/log`, otherwise the sidecar reads from an empty directory and produces no output.
+**Common mistake to avoid**: Only adding the sidecar volumeMount and forgetting the main container’s mount too — both containers must mount the same volume at `/opt`.
 
 **Further reading**: https://kubernetes.io/docs/concepts/workloads/pods/#how-pods-manage-multiple-containers

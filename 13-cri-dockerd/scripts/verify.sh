@@ -27,5 +27,19 @@ if ! test -S /var/run/cri-dockerd.sock; then
   exit 1
 fi
 
+# Check required sysctl values
+for key in net.bridge.bridge-nf-call-iptables net.ipv4.ip_forward; do
+  val=$(sysctl -n "$key" 2>/dev/null || echo "0")
+  if [ "$val" != "1" ]; then
+    echo "sysctl $key must be 1, got: $val. Run: sysctl -w $key=1"
+    exit 1
+  fi
+done
+ip6fwd=$(sysctl -n net.ipv6.conf.all.forwarding 2>/dev/null || echo "0")
+if [ "$ip6fwd" != "1" ]; then
+  echo "sysctl net.ipv6.conf.all.forwarding must be 1"
+  exit 1
+fi
+
 echo "PASS"
 exit 0

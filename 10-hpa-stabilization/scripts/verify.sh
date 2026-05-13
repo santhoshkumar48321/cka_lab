@@ -17,6 +17,10 @@ if ! test -n "$stabilization"; then
   echo "HPA must have scaleDown stabilizationWindowSeconds set"
   exit 1
 fi
+if ! test "$stabilization" -eq 45; then
+  echo "stabilizationWindowSeconds must be exactly 45, got: $stabilization"
+  exit 1
+fi
 
 echo "PASS"
 exit 0

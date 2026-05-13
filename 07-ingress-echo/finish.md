@@ -6,6 +6,6 @@ You practiced creating a ClusterIP Service and an Ingress resource to expose an 
 
 **CKA Domain**: Services & Networking
 
-**Common mistake to avoid**: Exposing the wrong port on the Service — the Service must listen on port `8090` (not `80`) while targeting pod port `80`. Mixing these up causes the Ingress backend check to fail.
+**Common mistake to avoid**: Forgetting `ingressClassName` or using the wrong pathType (`Exact` vs `Prefix`).
 
 **Further reading**: https://kubernetes.io/docs/concepts/services-networking/ingress/

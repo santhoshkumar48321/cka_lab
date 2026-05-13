@@ -1,5 +1,13 @@
 ## Tasks
 
+### Step 0 — Calculate fair-share values (exam technique)
+```bash
+kubectl describe node | grep -A5 'Allocatable'
+# Divide CPU and memory by 3 replicas for requests.
+# Set limits to 2x requests as a safe default.
+# This lab uses example values 200m/128Mi (limits 400m/256Mi).
+```
+
 ### Step 1 — Inspect current state
 ```bash
 kubectl describe deployment webapp-deployment

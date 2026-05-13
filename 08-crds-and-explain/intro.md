@@ -1,18 +1,22 @@
 ## Scenario
-Istio service mesh CRDs are installed on this cluster. A new team member needs documentation explaining what resources are available and what the key fields do. You need to discover and capture this information using kubectl's built-in tools.
+cert-manager is installed on the cluster, and a teammate needs quick reference notes for its CRDs. You need to list the available cert-manager CRDs and explain a specific field in the Certificate schema using kubectl.
 
 ## Goal
-List all Istio CRDs and extract schema documentation for `VirtualService.spec.hosts`.
+List all cert-manager CRDs and capture the kubectl explain output for Certificate.spec.subject.
 
 ## What exists in the cluster when you start
 
 | Resource | Type | Notes |
 |---|---|---|
-| `virtualservices.networking.istio.io` | CRD | short name: `vs` |
-| `destinationrules.networking.istio.io` | CRD | short name: `dr` |
-| `gateways.networking.istio.io` | CRD | — |
-| `serviceentries.networking.istio.io` | CRD | — |
+| `certificates.cert-manager.io` | CRD | Certificate |
+| `issuers.cert-manager.io` | CRD | Issuer |
+| `clusterissuers.cert-manager.io` | CRD | ClusterIssuer |
+| `certificaterequests.cert-manager.io` | CRD | CertificateRequest |
 
 ## Requirements
-1. List all Istio CRDs and save to `~/crds-list.yaml`
-2. Extract `kubectl explain` output for `VirtualService.spec.hosts` and save to `~/hosts-spec.yaml`
+
+| Field | Value |
+|---|---|
+| CRD list file | `~/crds-list.txt` |
+| Explain output file | `~/subject-explain.txt` |
+| Explain target | `Certificate.spec.subject` |

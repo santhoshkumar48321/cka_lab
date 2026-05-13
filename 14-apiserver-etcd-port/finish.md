@@ -1,7 +1,11 @@
-## Nice work ✅
+## Well done! 🎉
 
-If you want to repeat: use the **Restart Scenario** button to reset the environment.
+You practiced updating control plane configuration and validating changes to static pod manifests.
 
-Tips:
-- Keep `kubectl get all -A` and `kubectl describe` close.
-- Prove success with the verification commands, not vibes 😄
+**Why it matters on the CKA exam**: Editing control plane manifests is a high-value Cluster Architecture skill that appears in troubleshooting scenarios.
+
+**CKA Domain**: Cluster Architecture, Installation & Configuration
+
+**Common mistake to avoid**: Editing the wrong field or not waiting for kubelet to restart the static pod.
+
+**Further reading**: https://kubernetes.io/docs/tasks/administer-cluster/change-static-pod/

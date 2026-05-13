@@ -9,17 +9,28 @@ Install **Calico v3.27.4** using the Tigera operator manifest. This requires int
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/tigera-operator.yaml
 ```
 
-### Step 2 — Watch the operator start
+### Step 2 — Find your cluster CIDR and edit custom-resources.yaml
+```bash
+# Get the cluster pod CIDR from kube-controller-manager:
+grep -i 'cluster-cidr' /etc/kubernetes/manifests/kube-controller-manager.yaml
+
+# Download custom-resources.yaml:
+curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/custom-resources.yaml
+
+# Edit the CIDR (default in file is 192.168.0.0/16, update to match your cluster):
+vi custom-resources.yaml   # find cidr: 192.168.0.0/16 and update
+
+# Apply:
+kubectl create -f custom-resources.yaml
+
+# Restart kubelet after CNI is applied:
+systemctl restart kubelet
+```
+
+### Step 3 — Watch the operator start
 ```bash
 kubectl get pods -n tigera-operator -w
 # Wait until the tigera-operator pod shows Running
-```
-
-### Step 3 — (Optional) Install Calico custom resources for a self-managed cluster
-```bash
-curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/custom-resources.yaml
-# Edit CIDR if needed, then:
-kubectl create -f custom-resources.yaml
 ```
 
 > **Exam note**: On the CKA exam the CNI URL is provided in the question. You only need to `kubectl apply/create -f <url>` and wait for nodes to go Ready.
