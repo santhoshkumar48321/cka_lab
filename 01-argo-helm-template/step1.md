@@ -4,7 +4,8 @@
 2. Update the repo cache
 3. Render the chart with CRDs ENABLED (default) and save to file 1
 4. Render the chart with CRDs DISABLED and save to file 2
-5. Apply the no-CRDs manifest to the cluster
+5. Create the `argocd-no-crds` namespace
+6. Install Argo CD by applying the no-CRDs manifest to the cluster
 
 ---
 
@@ -28,7 +29,8 @@ helm template argocd argo/argo-cd \
   --<FLAG_TO_SKIP_CRDS> \
   > /home/candidate/argo-cd-crds-disabled.yaml
 
-# Task 5: Create the target namespace, then apply the no-CRDs manifest.
+# Task 5: Create the target namespace.
+# Task 6: Install Argo CD by applying the no-CRDs manifest.
 # The cluster already has Argo CD CRDs installed — applying the no-CRDs
 # file is the safe, idempotent way to deploy without CRD conflicts.
 kubectl create namespace ___________
@@ -53,7 +55,7 @@ grep -c 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-enabled.ya
 grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml \
   && echo "❌ CRDs found" || echo "✅ No CRDs"
 
-# Namespace and deployment must exist after Task 5
+# Namespace and deployment must exist after Task 6
 kubectl get namespace argocd-no-crds
 kubectl -n argocd-no-crds get deploy
 ```
