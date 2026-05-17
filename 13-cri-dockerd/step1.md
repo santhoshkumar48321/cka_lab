@@ -1,48 +1,35 @@
 ## Tasks
 
-### Step 1 — Install cri-dockerd from the pre-downloaded .deb
+1. Install cri-dockerd from the pre-downloaded package.
+2. Enable and start both `cri-docker.service` and `cri-docker.socket`.
+3. Apply required sysctl networking settings.
+
+⚠️ Do NOT use v0.3.9 — it uses Docker API 1.43 which is incompatible with this cluster's Docker daemon (requires ≥ 1.44).
+
+## Inspect existing resources
+
 ```bash
-dpkg -i /root/cri-dockerd_0.3.9.3-0.ubuntu-focal_amd64.deb
+ls -lh /root/cri-dockerd.deb
+systemctl list-unit-files | grep cri-docker || true
 ```
 
-### Step 2 — Enable and start BOTH cri-docker services
+## Skeleton (fill in the blanks)
+
 ```bash
-# Enable and start the main service:
+dpkg -i /root/cri-dockerd.deb
 systemctl enable --now cri-docker.service
-
-# Enable and start the socket:
 systemctl enable --now cri-docker.socket
-```
 
-### Step 3 — Verify both services are active
-```bash
-systemctl is-active cri-docker.service
-systemctl is-active cri-docker.socket
-ls -la /var/run/cri-dockerd.sock
-```
-
-### Step 4 — Apply required sysctl values
-```bash
-# Apply all four required parameters:
 sysctl -w net.bridge.bridge-nf-call-iptables=1
-sysctl -w net.ipv6.conf.all.forwarding=1
 sysctl -w net.ipv4.ip_forward=1
-sysctl -w net.netfilter.nf_conntrack_max=262144
-
-# Persist them across reboots:
-cat >> /etc/sysctl.conf <<EOF
-net.bridge.bridge-nf-call-iptables=1
-net.ipv6.conf.all.forwarding=1
-net.ipv4.ip_forward=1
-net.netfilter.nf_conntrack_max=262144
-EOF
+sysctl -w net.ipv6.conf.all.forwarding=1
 ```
 
 ## Verify
+
 ```bash
-dpkg -l | grep cri-dockerd
+cri-dockerd --version
 systemctl is-active cri-docker.service
 systemctl is-active cri-docker.socket
-ls -la /var/run/cri-dockerd.sock
-sysctl net.bridge.bridge-nf-call-iptables net.ipv6.conf.all.forwarding net.ipv4.ip_forward net.netfilter.nf_conntrack_max
+test -S /var/run/cri-dockerd.sock
 ```

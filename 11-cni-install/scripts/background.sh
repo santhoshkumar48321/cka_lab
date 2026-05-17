@@ -29,4 +29,8 @@ if ! systemctl is-active --quiet kubelet; then
   exit 1
 fi
 
+sleep 10
+kubectl get nodes --request-timeout=10s 2>/dev/null || true
+echo "[OK] CNI removed. Nodes are now NotReady — this is expected."
+
 echo "Setup complete"

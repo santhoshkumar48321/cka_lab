@@ -1,25 +1,23 @@
 ## Scenario
-A backend service soundserver-svc is running in the sound-zone namespace. You need to create an Ingress so external requests to http://mydemo.local/whisper are forwarded to port 9090 of the service.
+A backend Service `mediaserver-svc` is running in namespace `media-zone`. You must expose it with an Ingress so requests to `http://media.demo.local/stream` route correctly.
 
 ## Goal
-Create an Ingress named whisper in the sound-zone namespace that routes host mydemo.local path /whisper to soundserver-svc on port 9090.
+Create Ingress `stream-route` in `media-zone` for host `media.demo.local`, path `/stream`, backend `mediaserver-svc:8443`.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `soundserver-svc` | Service | `sound-zone` | ClusterIP, port 9090 |
-| `soundserver` | Deployment | `sound-zone` | nginx:latest, containerPort 9090 |
+| `mediaserver-svc` | Service | `media-zone` | ClusterIP, port 8443 |
+| `mediaserver` | Deployment | `media-zone` | nginx:latest, containerPort 8443 |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Ingress name | `whisper` |
-| Namespace | `sound-zone` |
-| Host | `mydemo.local` |
-| Path | `/whisper` |
-| Backend service | `soundserver-svc` |
-| Backend port | `9090` |
-
-Test: `curl -o /dev/null -s -w "%{http_code}\n" http://mydemo.local/whisper`
+| Namespace | `media-zone` |
+| Ingress name | `stream-route` |
+| Host | `media.demo.local` |
+| Path | `/stream` |
+| Backend service | `mediaserver-svc` |
+| Backend port | `8443` |

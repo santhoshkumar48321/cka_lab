@@ -7,13 +7,14 @@ if ! kubectl get configmap site-tls-config -n web-zone >/dev/null 2>&1; then
 fi
 
 cm_yaml="$(kubectl get configmap site-tls-config -n web-zone -o yaml)"
-if ! echo "$cm_yaml" | grep 'ssl_protocols' | grep -q 'TLSv1.2'; then
-  echo "nginx config must include TLSv1.2 in ssl_protocols"
+if echo "$cm_yaml" | grep 'ssl_protocols' | grep -q 'TLSv1.2'; then
+  echo "nginx config must NOT include TLSv1.2 in ssl_protocols"
   exit 1
 fi
 if ! echo "$cm_yaml" | grep 'ssl_protocols' | grep -q 'TLSv1.3'; then
   echo "nginx config must include TLSv1.3 in ssl_protocols"
   exit 1
 fi
+
 echo "PASS"
 exit 0

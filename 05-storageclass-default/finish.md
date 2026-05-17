@@ -8,4 +8,4 @@ You practiced creating a StorageClass and designating it as the cluster default 
 
 **Common mistake to avoid**: With `WaitForFirstConsumer`, the PVC stays Pending until a Pod is created — this is normal.
 
-**Further reading**: https://kubernetes.io/docs/concepts/storage/storage-classes/#default-storageclass
+**Further reading**: https://kubernetes.io/docs/concepts/storage/storage-classes/

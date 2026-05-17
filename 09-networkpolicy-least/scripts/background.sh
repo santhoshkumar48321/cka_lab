@@ -15,6 +15,7 @@ wait_kube() {
 wait_kube
 
 kubectl create namespace project-x --dry-run=client -o yaml | kubectl apply -f -
+kubectl label namespace project-x kubernetes.io/metadata.name=project-x --overwrite
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1

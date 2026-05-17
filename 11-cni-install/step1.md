@@ -1,46 +1,34 @@
 ## Tasks
 
-Install **Calico v3.27.4** using the Tigera operator manifest. This requires internet access.
+> ⏱ **Calico takes 2–3 minutes to fully initialise.** Watch progress with:
+> `kubectl get pods -n tigera-operator -w`
+> Do NOT click CHECK until all pods show Running.
 
-> **⏱ Timing warning**: Calico installation takes **2-3 minutes** to fully come up. Watch progress with `kubectl get pods -n tigera-operator -w` and do not click CHECK until all pods are Running.
+Install **Calico v3.27.4** using the Tigera operator manifest.
 
-### Step 1 — Install the Tigera Operator (Calico's installer)
+### Step 1 — Install the Tigera Operator
 ```bash
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/tigera-operator.yaml
 ```
 
-### Step 2 — Find your cluster CIDR and edit custom-resources.yaml
+### Step 2 — Find your cluster CIDR and apply custom resources
 ```bash
-# Get the cluster pod CIDR from kube-controller-manager:
 grep -i 'cluster-cidr' /etc/kubernetes/manifests/kube-controller-manager.yaml
-
-# Download custom-resources.yaml:
 curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/custom-resources.yaml
-
-# Edit the CIDR (default in file is 192.168.0.0/16, update to match your cluster):
-vi custom-resources.yaml   # find cidr: 192.168.0.0/16 and update
-
-# Apply:
+vi custom-resources.yaml
 kubectl create -f custom-resources.yaml
-
-# Restart kubelet after CNI is applied:
 systemctl restart kubelet
 ```
 
-### Step 3 — Watch the operator start
+### Step 3 — Wait for pods and node readiness
 ```bash
 kubectl get pods -n tigera-operator -w
-# Wait until the tigera-operator pod shows Running
+kubectl get nodes -w
 ```
-
-> **Exam note**: On the CKA exam the CNI URL is provided in the question. You only need to `kubectl apply/create -f <url>` and wait for nodes to go Ready.
 
 ## Verify
 ```bash
-# Check operator namespace exists:
 kubectl get namespace tigera-operator
-# Check pods in kube-system for any CNI components:
-kubectl get pods -A | grep -E 'calico|tigera|flannel|cilium'
-# Ultimately, nodes should be Ready:
+kubectl get pods -n tigera-operator
 kubectl get nodes
 ```
