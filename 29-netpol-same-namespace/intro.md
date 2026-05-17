@@ -1,24 +1,22 @@
 ## Scenario
-In the project-x namespace, two Deployments run side by side. Currently all pods can communicate freely. Security requires that ONLY frontend pods may reach backend pods on port 8080. All other traffic — including from outside the namespace — must be blocked.
+In namespace `data-tier`, two Deployments are running: `api-gateway` and `database`. Security policy requires that only `api-gateway` pods can access `database` on PostgreSQL port 5432.
 
 ## Goal
-Create a NetworkPolicy in project-x that allows only pods with label app=frontend to reach pods with label app=backend on TCP port 8080, blocking all other ingress.
+Create NetworkPolicy `allow-db-from-gateway` to allow ingress to `database` only from `api-gateway` on TCP 5432.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `frontend` | Deployment | `project-x` | pods labeled `app=frontend` |
-| `backend` | Deployment | `project-x` | pods labeled `app=backend`, port 8080 |
+| `api-gateway` | Deployment | `data-tier` | pods labeled `app=api-gateway` |
+| `database` | Deployment | `data-tier` | pods labeled `app=database`, listening on 5432 |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Namespace | `project-x` |
-| Policy selector | pods with label `app=backend` |
-| Allow from | pods with label `app=frontend` (same namespace) |
-| Allow port | TCP 8080 |
-| Block | all other ingress |
-
-> **Key constraint**: Both Deployments are in THE SAME namespace: `project-x`. Use `podSelector` (not `namespaceSelector`) for the from rule.
+| Namespace | `data-tier` |
+| NetworkPolicy name | `allow-db-from-gateway` |
+| Target pods | `app=database` |
+| Allow from | `app=api-gateway` |
+| Port | `TCP 5432` |

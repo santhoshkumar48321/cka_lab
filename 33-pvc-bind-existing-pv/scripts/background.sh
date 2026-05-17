@@ -14,15 +14,14 @@ wait_kube() {
 
 wait_kube
 
-mkdir -p /mnt/web-data
-
-kubectl create namespace frontend --dry-run=client -o yaml | kubectl apply -f -
+mkdir -p /mnt/db-data
+kubectl create namespace db-ns --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: manual
+  name: db-storage
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: Immediate
 reclaimPolicy: Retain
@@ -32,16 +31,16 @@ kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: web-pv
+  name: db-pv
 spec:
   capacity:
-    storage: 500Mi
+    storage: 1Gi
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
+  storageClassName: db-storage
   hostPath:
-    path: /mnt/web-data
+    path: /mnt/db-data
     type: DirectoryOrCreate
 YAML
 
@@ -49,21 +48,24 @@ kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-app
-  namespace: frontend
+  name: postgres
+  namespace: db-ns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-app
+      app: postgres
   template:
     metadata:
       labels:
-        app: web-app
+        app: postgres
     spec:
       containers:
-      - name: nginx
-        image: nginx:latest
+      - name: postgres
+        image: postgres:14
+        env:
+        - name: POSTGRES_PASSWORD
+          value: mysecretpassword
 YAML
 
 echo "Setup complete"

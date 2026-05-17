@@ -1,26 +1,23 @@
 ## Scenario
-You are managing a Deployment named ui-app in the dev-lab namespace. The nginx container currently has no explicit port spec. You need to update the Deployment to expose port 80/TCP and then create a NodePort Service.
+You manage a Deployment named `web-api` in namespace `api-ns`. The container has no explicit port definition yet, and the app must be exposed through a NodePort Service.
 
 ## Goal
-Modify the ui-app Deployment to add a named container port (http/80), then create NodePort Service ui-service that exposes it.
+Modify Deployment `web-api` to expose named container port `api` on `8080`, then create NodePort Service `web-api-svc`.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `ui-app` | Deployment | `dev-lab` | nginx:latest, 2 replicas, NO containerPort defined |
+| `web-api` | Deployment | `api-ns` | nginx:latest, 2 replicas, no containerPort set |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Deployment | `ui-app` |
-| Namespace | `dev-lab` |
-| Container port | `80/TCP` |
-| Port name | `http` |
-| Service name | `ui-service` |
+| Deployment | `web-api` |
+| Namespace | `api-ns` |
+| Container port | `8080/TCP` |
+| Port name | `api` |
+| Service name | `web-api-svc` |
 | Service type | `NodePort` |
-| Service port | `80` |
-| NodePort range | `30000–32767` (auto-assigned) |
-
-> **Important**: Do NOT recreate the Deployment — only modify it. The container currently has NO port spec defined — you must add it.
+| Service port | `8080` |

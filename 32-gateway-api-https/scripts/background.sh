@@ -16,73 +16,13 @@ wait_kube
 
 echo "Installing Gateway API CRDs..."
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml \
-  || kubectl apply -f - <<'GWCRDS'
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: gatewayclasses.gateway.networking.k8s.io
-spec:
-  group: gateway.networking.k8s.io
-  versions:
-  - name: v1
-    served: true
-    storage: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        x-kubernetes-preserve-unknown-fields: true
-  scope: Cluster
-  names:
-    plural: gatewayclasses
-    singular: gatewayclass
-    kind: GatewayClass
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: gateways.gateway.networking.k8s.io
-spec:
-  group: gateway.networking.k8s.io
-  versions:
-  - name: v1
-    served: true
-    storage: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        x-kubernetes-preserve-unknown-fields: true
-  scope: Namespaced
-  names:
-    plural: gateways
-    singular: gateway
-    kind: Gateway
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: httproutes.gateway.networking.k8s.io
-spec:
-  group: gateway.networking.k8s.io
-  versions:
-  - name: v1
-    served: true
-    storage: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        x-kubernetes-preserve-unknown-fields: true
-  scope: Namespaced
-  names:
-    plural: httproutes
-    singular: httproute
-    kind: HTTPRoute
-GWCRDS
+  || true
 
 kubectl apply -f - <<'YAML'
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
-  name: nginx-gateway
+  name: nginx-class
 spec:
   controllerName: nginx.org/gateway-controller
 YAML
@@ -93,27 +33,27 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout /tmp/api-tls.key -out /tmp/api-tls.crt \
-  -subj "/CN=api.zenhost.local/O=demo" \
-  -addext "subjectAltName=DNS:api.zenhost.local" 2>/dev/null
+  -keyout /tmp/web-tls.key -out /tmp/web-tls.crt \
+  -subj "/CN=web.cluster.local/O=demo" \
+  -addext "subjectAltName=DNS:web.cluster.local" 2>/dev/null
 
-kubectl create secret tls api-tls --cert=/tmp/api-tls.crt --key=/tmp/api-tls.key \
+kubectl create secret tls web-tls --cert=/tmp/web-tls.crt --key=/tmp/web-tls.key \
   -n default --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-backend
+  name: web-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api-backend
+      app: web-backend
   template:
     metadata:
       labels:
-        app: api-backend
+        app: web-backend
     spec:
       containers:
       - name: nginx
@@ -124,10 +64,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-backend-svc
+  name: web-backend-svc
 spec:
   selector:
-    app: api-backend
+    app: web-backend
   ports:
   - port: 443
     targetPort: 80
@@ -137,21 +77,21 @@ kubectl apply -f - <<'YAML'
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: secure-ingress
+  name: web-ingress
 spec:
   tls:
   - hosts:
-    - api.zenhost.local
-    secretName: api-tls
+    - web.cluster.local
+    secretName: web-tls
   rules:
-  - host: api.zenhost.local
+  - host: web.cluster.local
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: api-backend-svc
+            name: web-backend-svc
             port:
               number: 443
 YAML

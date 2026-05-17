@@ -14,48 +14,48 @@ wait_kube() {
 
 wait_kube
 
-kubectl create namespace sound-zone --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace media-zone --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: soundserver
-  namespace: sound-zone
+  name: mediaserver
+  namespace: media-zone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: soundserver
+      app: mediaserver
   template:
     metadata:
       labels:
-        app: soundserver
+        app: mediaserver
     spec:
       containers:
       - name: nginx
         image: nginx:latest
         ports:
-        - containerPort: 9090
+        - containerPort: 8443
 YAML
 
 kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: Service
 metadata:
-  name: soundserver-svc
-  namespace: sound-zone
+  name: mediaserver-svc
+  namespace: media-zone
 spec:
   type: ClusterIP
   selector:
-    app: soundserver
+    app: mediaserver
   ports:
-  - port: 9090
-    targetPort: 9090
+  - port: 8443
+    targetPort: 8443
 YAML
 
-if ! grep -q 'mydemo.local' /etc/hosts 2>/dev/null; then
-  echo "127.0.0.1 mydemo.local" >> /etc/hosts
+if ! grep -q 'media.demo.local' /etc/hosts 2>/dev/null; then
+  echo "127.0.0.1 media.demo.local" >> /etc/hosts
 fi
 
 echo "Setup complete"

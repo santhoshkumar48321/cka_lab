@@ -19,8 +19,8 @@ if ! command -v docker >/dev/null 2>&1; then
   apt-get install -y docker.io
 fi
 
-DEB_URL="https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.9/cri-dockerd_0.3.9.3-0.ubuntu-focal_amd64.deb"
-DEB_PATH="/root/cri-dockerd_0.3.9.3-0.ubuntu-focal_amd64.deb"
+DEB_URL="https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.15/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb"
+DEB_PATH="/root/cri-dockerd.deb"
 
 if [ ! -f "$DEB_PATH" ]; then
   curl -fsSL "$DEB_URL" -o "$DEB_PATH" || echo "Warning: could not download cri-dockerd .deb" >&2

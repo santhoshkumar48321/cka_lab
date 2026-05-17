@@ -14,23 +14,23 @@ wait_kube() {
 
 wait_kube
 
-kubectl create namespace project-x --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace data-tier --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
-  namespace: project-x
+  name: api-gateway
+  namespace: data-tier
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: api-gateway
   template:
     metadata:
       labels:
-        app: frontend
+        app: api-gateway
     spec:
       containers:
       - name: app
@@ -43,23 +43,23 @@ kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
-  namespace: project-x
+  name: database
+  namespace: data-tier
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: database
   template:
     metadata:
       labels:
-        app: backend
+        app: database
     spec:
       containers:
       - name: app
-        image: nginx:latest
+        image: postgres:14
         ports:
-        - containerPort: 8080
+        - containerPort: 5432
 YAML
 
 echo "Setup complete"

@@ -36,8 +36,14 @@ fi
 logshipper_cmd=$(kubectl get deployment myapp -n default \
   -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .command[*]}{@}{" "}{end}{range .args[*]}{@}{" "}{end}{"\n"}{end}' \
   | grep '^logshipper:' || echo "")
-if ! echo "$logshipper_cmd" | grep -qE 'tail.*logs\.txt|logs\.txt.*tail'; then
-  echo "logshipper command must include 'tail' and '/opt/logs.txt'"
+
+if ! echo "$logshipper_cmd" | grep -q 'tail'; then
+  echo "logshipper command must include 'tail'"
+  exit 1
+fi
+
+if ! echo "$logshipper_cmd" | grep -q '/opt/logs.txt'; then
+  echo "logshipper command must include '/opt/logs.txt'"
   exit 1
 fi
 

@@ -1,26 +1,19 @@
 ## Tasks
 
-1. Inspect the existing ui-app Deployment in dev-lab:
+1. Inspect Deployment `web-api` in namespace `api-ns`.
+2. Edit it to add named container port `api` on `8080`.
+3. Create NodePort Service `web-api-svc` exposing port `8080`.
+
+## Inspect existing resources
+
 ```bash
-kubectl -n dev-lab get deployment ui-app -o yaml
-# Note: the container has NO port spec currently
+kubectl -n api-ns get deployment web-api -o yaml
+kubectl -n api-ns get pods --show-labels
 ```
 
-2. Edit the Deployment to add a named port (DO NOT recreate):
-```bash
-kubectl -n dev-lab edit deployment ui-app
-```
-Add under `spec.template.spec.containers[0].ports`:
-```yaml
-ports:
-- name: http
-  containerPort: 80
-  protocol: TCP
-```
+## Skeleton (fill in the blanks)
 
-3. Create the NodePort Service `ui-service`:
 ```yaml
-# Skeleton — fill in the blanks
 apiVersion: v1
 kind: Service
 metadata:
@@ -29,23 +22,18 @@ metadata:
 spec:
   type: ___________
   selector:
-    app: ui-app
+    app: web-api
   ports:
-  - name: http
+  - name: ___________
     port: ___________
     targetPort: ___________
     protocol: TCP
 ```
 
-## Hints
-```bash
-kubectl -n dev-lab get deployment ui-app -o jsonpath='{.spec.template.spec.containers[0].ports}'
-kubectl -n dev-lab get pods --show-labels
-```
-
 ## Verify
+
 ```bash
-kubectl -n dev-lab get deployment ui-app -o jsonpath='{.spec.template.spec.containers[0].ports}'
-kubectl -n dev-lab get service ui-service
-kubectl -n dev-lab describe service ui-service
+kubectl -n api-ns get deployment web-api -o jsonpath='{.spec.template.spec.containers[0].ports}'
+kubectl -n api-ns get service web-api-svc
+kubectl -n api-ns describe service web-api-svc
 ```

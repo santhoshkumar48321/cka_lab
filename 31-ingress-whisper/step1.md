@@ -1,12 +1,17 @@
 ## Tasks
 
-1. Inspect the existing service in sound-zone:
+1. Inspect existing Service `mediaserver-svc` in `media-zone`.
+2. Create Ingress `stream-route` with host/path routing to service port 8443.
+
+## Inspect existing resources
+
 ```bash
-kubectl -n sound-zone get svc soundserver-svc
-kubectl -n sound-zone get pods --show-labels
+kubectl -n media-zone get svc mediaserver-svc
+kubectl -n media-zone get pods --show-labels
 ```
 
-2. Create the Ingress `whisper` — fill in the blanks:
+## Skeleton (fill in the blanks)
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -27,14 +32,9 @@ spec:
               number: ___________
 ```
 
-## Hints
-```bash
-kubectl -n sound-zone get all
-# The service soundserver-svc listens on port 9090
-```
-
 ## Verify
+
 ```bash
-kubectl -n sound-zone get ingress whisper
-kubectl -n sound-zone describe ingress whisper
+kubectl -n media-zone get ingress stream-route
+kubectl -n media-zone describe ingress stream-route
 ```

@@ -1,26 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-crds_file="$HOME/crds-list.txt"
-subject_file="$HOME/subject-explain.txt"
-
-if ! test -s "$crds_file"; then
-  echo "Missing or empty file: $crds_file"
+if ! test -s /root/crds-list.txt; then
+  echo "Missing or empty: ~/crds-list.txt"
   exit 1
 fi
 
-if ! grep -q 'cert-manager.io' "$crds_file"; then
-  echo "$crds_file must contain cert-manager.io CRD entries"
+if ! grep -q 'cert-manager.io' /root/crds-list.txt; then
+  echo "~/crds-list.txt must contain cert-manager.io CRD entries"
   exit 1
 fi
 
-if ! test -s "$subject_file"; then
-  echo "Missing or empty file: $subject_file"
+if ! test -s /root/subject-explain.txt; then
+  echo "Missing or empty: ~/subject-explain.txt"
   exit 1
 fi
 
-if ! grep -qi 'subject\|Certificate' "$subject_file"; then
-  echo "$subject_file must contain kubectl explain output for Certificate.spec.subject"
+if ! grep -qi 'subject\|Certificate' /root/subject-explain.txt; then
+  echo "~/subject-explain.txt must contain kubectl explain output for Certificate.spec.subject"
   exit 1
 fi
 

@@ -8,4 +8,4 @@ You practiced exposing a workload through a NodePort Service with the correct po
 
 **Common mistake to avoid**: Using the wrong port/targetPort mapping or forgetting a selector that matches the pod labels.
 
-**Further reading**: https://kubernetes.io/docs/concepts/services-networking/service/
+**Further reading**: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
