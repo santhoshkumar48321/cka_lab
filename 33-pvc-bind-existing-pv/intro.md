@@ -1,26 +1,22 @@
 ## Scenario
-The web-app Deployment in the frontend namespace is running but has no persistent storage. A retained PersistentVolume already exists with 500Mi capacity. You need to claim it with a PVC and attach it to the existing Deployment.
+A `postgres` Deployment exists in namespace `db-ns` but currently has no persistent storage attached. A retained PV named `db-pv` already exists.
 
 ## Goal
-Create PVC web-pvc in the frontend namespace to bind the existing PV web-pv, then modify the web-app Deployment to mount it at /usr/share/nginx/html.
+Create PVC `db-claim` in `db-ns` to bind PV `db-pv`, then modify Deployment `postgres` to mount it at `/var/lib/postgresql/data`.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `web-app` | Deployment | `frontend` | nginx:latest, 1 replica, NO persistent storage |
-| `web-pv` | PersistentVolume | cluster | 500Mi, Retain, Available, storageClass: manual |
+| `postgres` | Deployment | `db-ns` | `postgres:14`, env `POSTGRES_PASSWORD=mysecretpassword`, no PVC mount |
+| `db-pv` | PersistentVolume | cluster | hostPath `/mnt/db-data`, storageClass `db-storage`, Retain |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| PVC name | `web-pvc` |
-| Namespace | `frontend` |
-| Storage request | `250Mi` |
-| StorageClass | `manual` |
-| Access mode | `ReadWriteOnce` |
-| Mount path | `/usr/share/nginx/html` |
-| Deployment | `web-app` (modify — do NOT recreate) |
-
-> **Important**: Modify the existing web-app Deployment — do not delete and recreate it.
+| PVC name | `db-claim` |
+| Namespace | `db-ns` |
+| StorageClass | `db-storage` |
+| Deployment | `postgres` (modify, do not recreate) |
+| Mount path | `/var/lib/postgresql/data` |

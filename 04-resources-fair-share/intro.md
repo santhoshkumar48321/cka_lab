@@ -4,6 +4,14 @@
 ## Goal
 Set CPU and memory requests/limits on **both** the `initContainer` and the main container in `webapp-deployment`, then restore it to 3 replicas.
 
+## Step 0 — Calculate fair-share values (exam technique)
+1. Check allocatable resources on a node:
+   `kubectl describe node | grep -A5 'Allocatable'`
+2. Divide CPU and memory by the number of replicas (3) to pick request values.
+3. Set limits to **2x** the requests as a safe default.
+
+> **Note**: This lab uses fixed example values (200m / 128Mi) so you can focus on the workflow. In the real exam, you must calculate the values from the cluster.
+
 ## What exists in the cluster when you start
 
 | Resource | Type | Namespace | Notes |

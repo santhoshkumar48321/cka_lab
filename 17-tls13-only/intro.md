@@ -1,15 +1,15 @@
 ## Scenario
-You manage a web server Deployment called secure-site in the web-zone namespace. Its nginx configuration is stored in ConfigMap site-tls-config. A security audit requires that TLS 1.2 be completely disabled — only TLS 1.3 may be accepted.
+The secure-site web server currently allows both TLSv1.2 and TLSv1.3. Security policy now requires disabling TLSv1.2 and keeping only TLSv1.3.
 
 ## Goal
-Update the nginx ConfigMap to restrict TLS to version 1.3 only, then restart the Deployment to apply the change.
+Update the nginx ConfigMap so only TLSv1.3 is allowed, then restart the Deployment.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `secure-site` | Deployment | `web-zone` | nginx, currently allows TLSv1.2 + TLSv1.3 |
-| `site-tls-config` | ConfigMap | `web-zone` | ssl_protocols TLSv1.2 TLSv1.3 (must change) |
+| `secure-site` | Deployment | `web-zone` | nginx |
+| `site-tls-config` | ConfigMap | `web-zone` | ssl_protocols TLSv1.2 TLSv1.3 |
 | `site-tls` | Secret | `web-zone` | TLS certificate for secure.demo.local |
 | `secure-site-svc` | Service | `web-zone` | ClusterIP, port 443 |
 
@@ -17,9 +17,5 @@ Update the nginx ConfigMap to restrict TLS to version 1.3 only, then restart the
 
 | Field | Value |
 |---|---|
-| Namespace | `web-zone` |
-| Deployment | `secure-site` |
-| ConfigMap | `site-tls-config` |
-| Service | `secure-site-svc` |
-| Allowed TLS | TLSv1.3 only |
-| Forbidden | TLSv1.2 must be removed from ssl_protocols |
+| Starting config | `ssl_protocols TLSv1.2 TLSv1.3` (both) — must restrict to TLSv1.3 only |
+| Target config | `ssl_protocols TLSv1.3` |

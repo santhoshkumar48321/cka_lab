@@ -14,7 +14,7 @@ wait_kube() {
 
 wait_kube
 
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -23,6 +23,24 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: rancher.io/local-path
 volumeBindingMode: WaitForFirstConsumer
+YAML
+
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-local
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  hostPath:
+    path: /mnt/pv-local
+    type: DirectoryOrCreate
 YAML
 
 echo "Setup complete"

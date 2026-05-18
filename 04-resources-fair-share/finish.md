@@ -6,6 +6,6 @@ You practiced setting CPU and memory requests/limits on both init containers and
 
 **CKA Domain**: Workloads & Scheduling
 
-**Common mistake to avoid**: Only setting resources on the main container and forgetting `initContainers` — the verify check inspects both, and the scheduler accounts for init container resource requests during scheduling.
+**Common mistake to avoid**: Setting only requests and forgetting limits, or setting limits lower than requests.
 
 **Further reading**: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/

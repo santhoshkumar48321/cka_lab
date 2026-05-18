@@ -4,38 +4,48 @@
 2. Update the repo cache
 3. Render the chart with CRDs ENABLED (default) and save to file 1
 4. Render the chart with CRDs DISABLED and save to file 2
+5. Create namespace `argocd-no-crds`
+6. Apply the no-CRDs manifest to the cluster in `argocd-no-crds`
+7. Confirm at least one Deployment exists in `argocd-no-crds`
 
-## Hints
+## Inspect existing resources
 
 ```bash
-# Add the repo (fill in the correct URL)
-helm repo add argo <HELM_REPO_URL>
+kubectl get ns
+kubectl get crd | grep argoproj.io | head
+helm repo list
+```
+
+## Skeleton (fill in the blanks)
+
+```bash
+helm repo add argo ___________
 helm repo update
 
-# Render with CRDs ENABLED (default behaviour):
 helm template argocd argo/argo-cd \
-  --version <VERSION> \
+  --version ___________ \
   --namespace argocd \
   > /home/candidate/argo-cd-crds-enabled.yaml
 
-# Render with CRDs DISABLED (fill in the flag):
 helm template argocd argo/argo-cd \
-  --version <VERSION> \
+  --version ___________ \
   --namespace argocd-no-crds \
-  --<FLAG_TO_SKIP_CRDS> \
+  --___________ \
   > /home/candidate/argo-cd-crds-disabled.yaml
+
+kubectl create namespace argocd-no-crds
+kubectl apply -f /home/candidate/argo-cd-crds-disabled.yaml -n argocd-no-crds
 ```
 
-> **Hint**: The flag to skip CRDs is `--set crds.install=false` or `--skip-crds`. The chart URL is `https://argoproj.github.io/argo-helm`.
-
 ## Verify
+
 ```bash
 ls -lh /home/candidate/argo-cd-crds-enabled.yaml
 ls -lh /home/candidate/argo-cd-crds-disabled.yaml
 
-# File 1 should contain CRDs:
-grep -c 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-enabled.yaml
+grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-enabled.yaml
+! grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml
 
-# File 2 should NOT contain CRDs:
-grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml && echo "❌ CRDs found" || echo "✅ No CRDs"
+kubectl get namespace argocd-no-crds
+kubectl -n argocd-no-crds get deploy
 ```

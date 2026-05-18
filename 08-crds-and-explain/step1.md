@@ -1,29 +1,24 @@
 ## Tasks
 
-1. List all Istio CRDs and save the output to `~/crds-list.yaml`:
+1. List all cert-manager CRDs and save the output to `~/crds-list.txt`:
 ```bash
-kubectl get crd | grep istio.io > ~/crds-list.yaml
-cat ~/crds-list.yaml
+kubectl get crd | grep cert-manager.io > ~/crds-list.txt
+cat ~/crds-list.txt
 ```
 
-2. Extract documentation for `VirtualService.spec.hosts` using `kubectl explain` and save to `~/hosts-spec.yaml`:
-
+2. Extract documentation for `Certificate.spec.subject` and save to `~/subject-explain.txt`:
 ```bash
-# The short name for VirtualService is 'vs'. Try:
-kubectl explain vs.spec.hosts > ~/hosts-spec.yaml
+kubectl explain certificate.spec.subject > ~/subject-explain.txt
 
-# If the short name isn't registered yet, use the full resource name:
-kubectl explain virtualservices.networking.istio.io.spec.hosts > ~/hosts-spec.yaml
+# Fallback if the short name isn't registered:
+kubectl explain certificates.cert-manager.io.spec.subject > ~/subject-explain.txt
 ```
 
-> **Tip**: `kubectl api-resources` and `kubectl explain` are allowed during the actual exam and are your best tools to discover API schemas without memorising them. Always try the short name first, then fall back to the full `resource.group.field` form.
-
-## Why this matters for CKA
-CRD discovery and `kubectl explain` usage are directly tested in the Cluster Architecture domain. You must know how to find resource fields without memorizing them.
+> **Hint**: If a short name isn't registered, always use the full `resource.group.field` format.
 
 ## Verify
 ```bash
-ls -lh ~/crds-list.yaml ~/hosts-spec.yaml
-head -n 10 ~/crds-list.yaml
-head -n 30 ~/hosts-spec.yaml
+ls -lh ~/crds-list.txt ~/subject-explain.txt
+head -n 5 ~/crds-list.txt
+head -n 20 ~/subject-explain.txt
 ```

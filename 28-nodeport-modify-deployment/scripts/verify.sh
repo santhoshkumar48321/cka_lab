@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get deployment ui-app -n dev-lab >/dev/null 2>&1; then
-  echo "Deployment 'ui-app' not found in namespace 'dev-lab'"
+if ! kubectl get deployment web-api -n api-ns >/dev/null 2>&1; then
+  echo "Deployment 'web-api' not found in namespace 'api-ns'"
   exit 1
 fi
 
-if ! kubectl get service ui-service -n dev-lab >/dev/null 2>&1; then
-  echo "Service 'ui-service' not found in namespace 'dev-lab'"
+if ! kubectl get service web-api-svc -n api-ns >/dev/null 2>&1; then
+  echo "Service 'web-api-svc' not found in namespace 'api-ns'"
   exit 1
 fi
 
-svc_type="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.type}')"
+svc_type="$(kubectl get service web-api-svc -n api-ns -o jsonpath='{.spec.type}')"
 if ! test "$svc_type" = "NodePort"; then
-  echo "Service 'ui-service' must be type NodePort, got: $svc_type"
+  echo "Service 'web-api-svc' must be type NodePort, got: $svc_type"
   exit 1
 fi
 
-port="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.ports[0].port}')"
-if ! test "$port" = "80"; then
-  echo "Service must expose port 80, got: $port"
+port="$(kubectl get service web-api-svc -n api-ns -o jsonpath='{.spec.ports[0].port}')"
+if ! test "$port" = "8080"; then
+  echo "Service must expose port 8080, got: $port"
   exit 1
 fi
 
-node_port="$(kubectl get service ui-service -n dev-lab -o jsonpath='{.spec.ports[0].nodePort}')"
-if [ "$node_port" -lt 30000 ] || [ "$node_port" -gt 32767 ]; then
-  echo "NodePort must be in range 30000-32767, got: $node_port"
+cport="$(kubectl get deployment web-api -n api-ns -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}')"
+if ! test "$cport" = "8080"; then
+  echo "Container port must be 8080, got: $cport"
   exit 1
 fi
 
-cport="$(kubectl get deployment ui-app -n dev-lab -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}')"
-if ! test "$cport" = "80"; then
-  echo "Container port must be 80, got: $cport"
+pname="$(kubectl get deployment web-api -n api-ns -o jsonpath='{.spec.template.spec.containers[0].ports[0].name}')"
+if ! test "$pname" = "api"; then
+  echo "Container port name must be api, got: $pname"
   exit 1
 fi
 

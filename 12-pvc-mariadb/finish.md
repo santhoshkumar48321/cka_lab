@@ -6,6 +6,6 @@ You practiced creating a PersistentVolumeClaim and wiring it into a Deployment s
 
 **CKA Domain**: Storage
 
-**Common mistake to avoid**: Applying the Deployment before the PVC exists — the pod will immediately go into a `Pending` state with a "persistentvolumeclaim not found" error, costing you time.
+**Common mistake to avoid**: Applying the Deployment before the PVC exists, which leaves the pod stuck Pending.
 
 **Further reading**: https://kubernetes.io/docs/concepts/storage/persistent-volumes/

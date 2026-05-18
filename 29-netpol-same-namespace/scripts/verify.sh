@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-np_count=$(kubectl get networkpolicy -n project-x --no-headers 2>/dev/null | grep -c . || true)
-if [ "$np_count" -eq 0 ]; then
-  echo "No NetworkPolicy found in namespace 'project-x'"
+if ! kubectl get networkpolicy allow-db-from-gateway -n data-tier >/dev/null 2>&1; then
+  echo "NetworkPolicy 'allow-db-from-gateway' not found in namespace 'data-tier'"
   exit 1
 fi
 
-np_yaml="$(kubectl get networkpolicy -n project-x -o yaml)"
+np_yaml="$(kubectl get networkpolicy allow-db-from-gateway -n data-tier -o yaml)"
 
 if ! echo "$np_yaml" | grep -q 'Ingress'; then
   echo "NetworkPolicy must define Ingress policyType"
   exit 1
 fi
 
-if ! echo "$np_yaml" | grep -qE 'app: backend|app=backend'; then
-  echo "NetworkPolicy must select pods with label app=backend"
+if ! echo "$np_yaml" | grep -qE 'app: database|app=database'; then
+  echo "NetworkPolicy must select pods with label app=database"
   exit 1
 fi
 
-if ! echo "$np_yaml" | grep -qE 'app: frontend|app=frontend'; then
-  echo "NetworkPolicy must allow ingress from pods with label app=frontend"
+if ! echo "$np_yaml" | grep -qE 'app: api-gateway|app=api-gateway'; then
+  echo "NetworkPolicy must allow ingress from pods with label app=api-gateway"
   exit 1
 fi
 
-if ! echo "$np_yaml" | grep -q '8080'; then
-  echo "NetworkPolicy must specify port 8080"
+if ! echo "$np_yaml" | grep -q '5432'; then
+  echo "NetworkPolicy must specify port 5432"
   exit 1
 fi
 

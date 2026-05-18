@@ -6,6 +6,6 @@ You practiced reinstalling a CNI plugin to restore pod networking after it had b
 
 **CKA Domain**: Cluster Architecture, Installation & Configuration
 
-**Common mistake to avoid**: Installing Flannel when the task requires NetworkPolicy support — Flannel does not enforce NetworkPolicies. Always choose Calico, Cilium, or Weave Net when policy enforcement is required.
+**Common mistake to avoid**: Installing Flannel (no NetworkPolicy support) or forgetting to edit the CIDR before applying custom-resources.yaml.
 
 **Further reading**: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network

@@ -7,3 +7,5 @@ You have successfully configured RBAC with namespace-scoped bindings.
 - RoleBinding binds ClusterRole to subjects within a specific namespace
 - This pattern is common for CI/CD pipelines with limited scope
 - Use `kubectl auth can-i` to test permissions
+
+**Further reading:** https://kubernetes.io/docs/reference/access-authn-authz/rbac/

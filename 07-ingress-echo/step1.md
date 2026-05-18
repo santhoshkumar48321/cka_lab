@@ -26,6 +26,7 @@ metadata:
   name: ___________
   namespace: ___________
 spec:
+  ingressClassName: ___________
   rules:
   - host: ___________
     http:

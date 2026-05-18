@@ -14,9 +14,36 @@ wait_kube() {
 
 wait_kube
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
+
+controller_phase=""
+for i in $(seq 1 90); do
+  controller_phase="$(kubectl get pods -n ingress-nginx -l app.kubernetes.io/component=controller -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "")"
+  if test "$controller_phase" = "Running"; then
+    break
+  fi
+  sleep 1
+done
+
+if ! test "$controller_phase" = "Running"; then
+  echo "Ingress controller not ready after 90 seconds" >&2
+  exit 1
+fi
+
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+YAML
+
 kubectl create namespace demo-app --dry-run=client -o yaml | kubectl apply -f -
 
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:

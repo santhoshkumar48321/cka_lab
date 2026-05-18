@@ -12,8 +12,8 @@ if ! test -n "$pc_value"; then
   echo "PriorityClass 'critical-priority' has no value set"
   exit 1
 fi
-if ! test "$pc_value" -lt 1000; then
-  echo "PriorityClass 'critical-priority' value must be less than 1000 (highest-1), got: $pc_value"
+if ! test "$pc_value" -eq 999; then
+  echo "PriorityClass value must be exactly 999 (1000 - 1), got: $pc_value"
   exit 1
 fi
 

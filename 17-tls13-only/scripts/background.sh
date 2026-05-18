@@ -21,7 +21,6 @@ fi
 
 kubectl create namespace web-zone --dry-run=client -o yaml | kubectl apply -f -
 
-# Generate self-signed TLS cert
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /tmp/tls.key -out /tmp/tls.crt \
   -subj "/CN=secure.demo.local/O=demo" \
@@ -30,8 +29,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 kubectl create secret tls site-tls --cert=/tmp/tls.crt --key=/tmp/tls.key \
   -n web-zone --dry-run=client -o yaml | kubectl apply -f -
 
-# Create nginx config allowing TLS 1.2 and 1.3 (user must restrict to 1.3 only)
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -51,7 +49,7 @@ data:
     }
 YAML
 
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -87,7 +85,7 @@ spec:
           secretName: site-tls
 YAML
 
-kubectl apply -f - <<'YAML'
+kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:

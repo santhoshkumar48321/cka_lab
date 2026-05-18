@@ -26,7 +26,6 @@ if ! kubectl get deployment myapp -n default \
   exit 1
 fi
 
-# Check myapp container still exists with busybox:1.36
 if ! kubectl get deployment myapp -n default \
      -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{.image}{"\n"}{end}' \
      | grep -q '^myapp:.*busybox:1\.36'; then
@@ -34,20 +33,25 @@ if ! kubectl get deployment myapp -n default \
   exit 1
 fi
 
-# Check logshipper command includes tail and /opt/logs.txt
-logshipper_spec=$(kubectl get deployment myapp -n default -o yaml \
-  | grep -A5 'name: logshipper')
-if ! echo "$logshipper_spec" | grep -qE 'tail|logs\.txt'; then
-  echo "logshipper command must include 'tail' and '/opt/logs.txt'"
+logshipper_cmd=$(kubectl get deployment myapp -n default \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .command[*]}{@}{" "}{end}{range .args[*]}{@}{" "}{end}{"\n"}{end}' \
+  | grep '^logshipper:' || echo "")
+
+if ! echo "$logshipper_cmd" | grep -q 'tail'; then
+  echo "logshipper command must include 'tail'"
   exit 1
 fi
 
-# Check both containers mount /opt
+if ! echo "$logshipper_cmd" | grep -q '/var/log/logs.txt'; then
+  echo "logshipper command must run 'tail -f /var/log/logs.txt'"
+  exit 1
+fi
+
 missing=$(kubectl get deployment myapp -n default \
   -o jsonpath='{range .spec.template.spec.containers[*]}{.name}:{range .volumeMounts[*]}{.mountPath}{" "}{end}{"\n"}{end}' \
-  | grep -v '/opt' | grep -c . || true)
+  | grep -v '/var/log' | grep -c . || true)
 if [ "$missing" -ne 0 ]; then
-  echo "Both containers must mount the shared volume at /opt"
+  echo "Both containers must mount the shared volume at /var/log"
   exit 1
 fi
 

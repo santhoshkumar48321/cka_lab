@@ -35,14 +35,14 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          mkdir -p /opt
+          mkdir -p /var/log
           while true; do
-            echo "$(date) app log entry" >> /opt/logs.txt
+            echo "$(date) app log entry" >> /var/log/logs.txt
             sleep 1
           done
         volumeMounts:
         - name: data
-          mountPath: /opt
+          mountPath: /var/log
       volumes:
       - name: data
         emptyDir: {}
