@@ -1,4 +1,4 @@
-## Congratulations!
+## Well done! 🎉
 
 You have successfully extracted error log lines to a file.
 

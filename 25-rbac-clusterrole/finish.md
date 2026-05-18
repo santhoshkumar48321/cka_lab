@@ -1,4 +1,4 @@
-## Congratulations!
+## Well done! 🎉
 
 You have successfully configured RBAC with namespace-scoped bindings.
 

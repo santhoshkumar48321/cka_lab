@@ -1,4 +1,4 @@
-## Nice work ✅
+## Well done! 🎉
 
 If you want to repeat: use the **Restart Scenario** button to reset the environment.
 

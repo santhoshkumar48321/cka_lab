@@ -30,6 +30,8 @@ Make sure the existing `atlas-app` container also mounts the same volume `log-vo
 kubectl replace --force -f /tmp/atlas-app.yaml
 ```
 
+## Verify
+
 ### Step 4 — Verify the sidecar is streaming
 ```bash
 # List containers in the pod:

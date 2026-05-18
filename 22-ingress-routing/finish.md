@@ -1,4 +1,4 @@
-## Congratulations!
+## Well done! 🎉
 
 You have successfully created an Ingress resource.
 

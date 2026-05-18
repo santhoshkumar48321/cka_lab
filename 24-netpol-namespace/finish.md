@@ -1,4 +1,4 @@
-## Congratulations!
+## Well done! 🎉
 
 You have successfully created a least-permissive NetworkPolicy.
 

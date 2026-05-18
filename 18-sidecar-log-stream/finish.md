@@ -1,4 +1,4 @@
-## Congratulations!
+## Well done! 🎉
 
 You have successfully added a sidecar container to stream file-based logs.
 
