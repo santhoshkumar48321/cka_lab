@@ -79,8 +79,8 @@
     },
     {
       "path": "16-nodeport-expose",
-      "title": "16 - Networking: Expose deployment via NodePort",
-      "description": "Expose deployment via NodePort"
+      "title": "16 - Networking: Create Pod and expose via NodePort",
+      "description": "Create Pod and expose via NodePort"
     },
     {
       "path": "17-extract-log-errors",
