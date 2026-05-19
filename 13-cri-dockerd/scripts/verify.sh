@@ -9,7 +9,7 @@ if ! command -v cri-dockerd >/dev/null 2>&1 && \
 fi
 
 if ! docker info >/dev/null 2>&1; then
-  echo "FAIL: Docker daemon not running. Run: service docker start"
+  echo "Docker daemon is not running. Run: service docker start && docker info"
   exit 1
 fi
 
