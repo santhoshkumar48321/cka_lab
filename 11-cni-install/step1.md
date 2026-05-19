@@ -6,24 +6,34 @@
 
 Install **Calico v3.27.4** using the Tigera operator manifest.
 
+## Step 0 — Read cluster CIDR (MUST do this before applying custom-resources.yaml)
+```bash
+cat /root/cluster-cidr.txt
+# OR: grep 'cluster-cidr' /etc/kubernetes/manifests/kube-controller-manager.yaml
+# Update the cidr: field in custom-resources.yaml to match before applying
+```
+
 ### Step 1 — Install the Tigera Operator
 ```bash
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/tigera-operator.yaml
 ```
 
-### Step 2 — Find your cluster CIDR and apply custom resources
+### Step 2 — Apply custom resources
 ```bash
-grep -i 'cluster-cidr' /etc/kubernetes/manifests/kube-controller-manager.yaml
 curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.27.4/manifests/custom-resources.yaml
 vi custom-resources.yaml
 kubectl create -f custom-resources.yaml
-systemctl restart kubelet
 ```
 
 ### Step 3 — Wait for pods and node readiness
 ```bash
 kubectl get pods -n tigera-operator -w
 kubectl get nodes -w
+```
+
+## Step 4 — Restart kubelet (exam requires this)
+```bash
+systemctl restart kubelet
 ```
 
 ## Verify

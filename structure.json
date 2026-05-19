@@ -1,5 +1,5 @@
 {
-  "title": "CKA 2026 Real-World Labs (35 Scenarios)",
+  "title": "CKA 2026 Real-World Labs (26 Scenarios)",
   "description": "Exam-style Kubernetes Administrator scenarios with guided tasks, resets, and verification.",
   "items": [
     {
@@ -83,98 +83,53 @@
       "description": "Expose deployment via NodePort"
     },
     {
-      "path": "17-tls13-only",
-      "title": "17 - Security/Networking: Enforce TLSv1.3 only",
-      "description": "Enforce TLSv1.3 only"
-    },
-    {
-      "path": "18-sidecar-log-stream",
-      "title": "18 - Workloads: Streaming Logs via Sidecar",
-      "description": "Streaming Logs via Sidecar"
-    },
-    {
-      "path": "19-extract-log-errors",
-      "title": "19 - Troubleshooting: Extract Specific Log Lines",
+      "path": "17-extract-log-errors",
+      "title": "17 - Troubleshooting: Extract Specific Log Lines",
       "description": "Extract Specific Log Lines"
     },
     {
-      "path": "20-pvc-expand",
-      "title": "20 - Storage: PVC + Pod Mount + Expand",
-      "description": "PVC + Pod Mount + Expand"
-    },
-    {
-      "path": "21-nodeselector-pod",
-      "title": "21 - Scheduling: Schedule Pod with NodeSelector",
+      "path": "18-nodeselector-pod",
+      "title": "18 - Scheduling: Schedule Pod with NodeSelector",
       "description": "Schedule Pod with NodeSelector"
     },
     {
-      "path": "22-ingress-routing",
-      "title": "22 - Networking: Create Ingress Routing",
-      "description": "Create Ingress Routing"
-    },
-    {
-      "path": "23-named-port-nodeport",
-      "title": "23 - Networking: Named Port + NodePort Service",
-      "description": "Named Port + NodePort Service"
-    },
-    {
-      "path": "24-netpol-namespace",
-      "title": "24 - Networking: NetworkPolicy Namespace Restriction",
+      "path": "19-netpol-namespace",
+      "title": "19 - Networking: NetworkPolicy Namespace Restriction",
       "description": "NetworkPolicy Namespace Restriction"
     },
     {
-      "path": "25-rbac-clusterrole",
-      "title": "25 - Security: RBAC ClusterRole + RoleBinding",
-      "description": "RBAC ClusterRole + RoleBinding"
-    },
-    {
-      "path": "26-sidecar-logshipper",
-      "title": "26 - Workloads: Add log-shipping sidecar container",
-      "description": "Add log-shipping sidecar container"
-    },
-    {
-      "path": "27-helm-two-releases",
-      "title": "27 - Cluster: Helm template two releases with and without CRDs",
-      "description": "Helm template two releases with and without CRDs"
-    },
-    {
-      "path": "28-nodeport-modify-deployment",
-      "title": "28 - Networking: Modify Deployment to add port and expose via NodePort",
+      "path": "20-nodeport-modify-deployment",
+      "title": "20 - Networking: Modify Deployment to add port and expose via NodePort",
       "description": "Modify Deployment to add port and expose via NodePort"
     },
     {
-      "path": "29-netpol-same-namespace",
-      "title": "29 - Networking: Least-permissive NetworkPolicy within one namespace",
-      "description": "Least-permissive NetworkPolicy within one namespace"
+      "path": "21-tls13-webzone",
+      "title": "21 - Q16: TLS \u2014 Add TLS 1.2 Support to nginx Server",
+      "description": "TLS \u2014 Add TLS 1.2 Support to nginx Server"
     },
     {
-      "path": "30-tls13-webzone",
-      "title": "30 - Security: Enforce TLS 1.3 only on nginx web server",
-      "description": "Enforce TLS 1.3 only on nginx web server"
-    },
-    {
-      "path": "31-ingress-whisper",
-      "title": "31 - Networking: Create Ingress with host-based routing",
+      "path": "22-ingress-whisper",
+      "title": "22 - Networking: Create Ingress with host-based routing",
       "description": "Create Ingress with host-based routing"
     },
     {
-      "path": "32-gateway-api-https",
-      "title": "32 - Networking: Migrate HTTPS Ingress to Gateway API",
+      "path": "23-gateway-api-https",
+      "title": "23 - Networking: Migrate HTTPS Ingress to Gateway API",
       "description": "Migrate HTTPS Ingress to Gateway API"
     },
     {
-      "path": "33-pvc-bind-existing-pv",
-      "title": "33 - Storage: Create PVC binding to retained PV and mount in Deployment",
+      "path": "24-pvc-bind-existing-pv",
+      "title": "24 - Storage: Create PVC binding to retained PV and mount in Deployment",
       "description": "Create PVC binding to retained PV and mount in Deployment"
     },
     {
-      "path": "34-cri-dockerd-focal",
-      "title": "34 - Cluster: Install cri-dockerd and configure both services",
+      "path": "25-cri-dockerd-focal",
+      "title": "25 - Cluster: Install cri-dockerd and configure both services",
       "description": "Install cri-dockerd and configure both services"
     },
     {
-      "path": "35-rbac-pipeline-permissions",
-      "title": "35 - Security: RBAC \u2014 restrict pipeline SA to create workloads in one namespace",
+      "path": "26-rbac-pipeline-permissions",
+      "title": "26 - Security: RBAC \u2014 restrict pipeline SA to create workloads in one namespace",
       "description": "RBAC \u2014 restrict pipeline SA to create workloads in one namespace"
     }
   ]

@@ -20,10 +20,16 @@ if [ ! -f "$manifest" ]; then
   exit 1
 fi
 
+CORRECT=$(grep -oP '(?<=--listen-client-urls=)[^\s,]+' \
+  /etc/kubernetes/manifests/etcd.yaml | head -1 || echo "https://127.0.0.1:2379")
+echo "$CORRECT" > /root/etcd-correct-endpoint.txt
+
 cp -a "$manifest" "${manifest}.bak.$(date +%s)"
 
-if grep -q ':2379' "$manifest"; then
-  sed -i '/--etcd-servers=/s/:2379/:2380/g' "$manifest"
+current=$(grep -oP '(?<=--etcd-servers=)[^\s]+' "$manifest" | head -1 || true)
+if [ -n "$current" ] && [ "$current" = "$CORRECT" ]; then
+  wrong="${CORRECT%:*}:2380"
+  sed -i "s|--etcd-servers=$CORRECT|--etcd-servers=$wrong|g" "$manifest"
 fi
 
 echo "Setup complete"

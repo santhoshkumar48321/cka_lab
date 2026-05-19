@@ -1,26 +1,25 @@
 ## Scenario
-You are managing a Deployment named ui-app in the dev-lab namespace. The nginx container currently has no explicit port spec. You need to update the Deployment to expose port 80/TCP and then create a NodePort Service.
+You need to create a Pod and expose it through a NodePort Service.
 
 ## Goal
-Modify the ui-app Deployment to add a named container port (http/80), then create a NodePort Service ui-service that exposes it.
+Create Pod `web-pod` (`nginx:latest`) with label `app=web-pod` in namespace `nodeport-lab`, then create NodePort Service `web-svc` exposing port 80.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `ui-app` | Deployment | `dev-lab` | nginx:latest, 2 replicas, **NO containerPort defined** |
+| `nodeport-lab` | Namespace | cluster | Exists, no workload yet |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Deployment | `ui-app` |
-| Namespace | `dev-lab` |
-| Container port | `80/TCP` |
-| Port name | `http` |
-| Service name | `ui-service` |
+| Pod | `web-pod` |
+| Namespace | `nodeport-lab` |
+| Image | `nginx:latest` |
+| Pod label | `app=web-pod` |
+| Service | `web-svc` |
 | Service type | `NodePort` |
 | Service port | `80` |
-| NodePort range | `30000–32767` (auto-assigned) |
-
-> **Important**: Do NOT recreate the Deployment — only modify it. The container currently has NO port spec defined — you must add it.
+| Selector | `app=web-pod` |
+| NodePort range | `30000–32767` |

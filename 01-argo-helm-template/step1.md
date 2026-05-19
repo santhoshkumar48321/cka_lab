@@ -4,9 +4,8 @@
 2. Update the repo cache
 3. Render the chart with CRDs ENABLED (default) and save to file 1
 4. Render the chart with CRDs DISABLED and save to file 2
-5. Create namespace `argocd-no-crds`
-6. Apply the no-CRDs manifest to the cluster in `argocd-no-crds`
-7. Confirm at least one Deployment exists in `argocd-no-crds`
+5. Apply `/home/candidate/argo-cd-crds-disabled.yaml`
+6. Wait for Argo CD pods to be Ready
 
 ## Inspect existing resources
 
@@ -29,12 +28,12 @@ helm template argocd argo/argo-cd \
 
 helm template argocd argo/argo-cd \
   --version ___________ \
-  --namespace argocd-no-crds \
+  --namespace argocd \
   --___________ \
   > /home/candidate/argo-cd-crds-disabled.yaml
 
-kubectl create namespace argocd-no-crds
-kubectl apply -f /home/candidate/argo-cd-crds-disabled.yaml -n argocd-no-crds
+kubectl apply -f /home/candidate/argo-cd-crds-disabled.yaml
+kubectl -n argocd wait --for=condition=Ready pod --all --timeout=120s
 ```
 
 ## Verify
@@ -46,6 +45,6 @@ ls -lh /home/candidate/argo-cd-crds-disabled.yaml
 grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-enabled.yaml
 ! grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disabled.yaml
 
-kubectl get namespace argocd-no-crds
-kubectl -n argocd-no-crds get deploy
+kubectl get namespace argocd
+kubectl -n argocd get pods
 ```

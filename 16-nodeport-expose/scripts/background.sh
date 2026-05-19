@@ -14,27 +14,6 @@ wait_kube() {
 
 wait_kube
 
-kubectl create namespace dev-lab --dry-run=client -o yaml | kubectl apply -f -
-
-kubectl apply -f - <<'YAML'
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ui-app
-  namespace: dev-lab
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: ui-app
-  template:
-    metadata:
-      labels:
-        app: ui-app
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:latest
-YAML
+kubectl create namespace nodeport-lab --dry-run=client -o yaml | kubectl apply -f -
 
 echo "Setup complete"

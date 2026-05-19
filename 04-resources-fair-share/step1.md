@@ -1,12 +1,13 @@
 ## Tasks
 
-### Step 0 — Calculate fair-share values (exam technique)
-```bash
-kubectl describe node | grep -A5 'Allocatable'
-# Divide CPU and memory by 3 replicas for requests.
-# Set limits to 2x requests as a safe default.
-# This lab uses example values 200m/128Mi (limits 400m/256Mi).
-```
+## ⚠️ CRITICAL EXAM NOTE
+Do NOT use a fixed percentage (10%, 20%). The exam warns against this.
+Instead:
+1. `kubectl describe node | grep -A6 Allocatable`
+2. Divide each resource by 3 (number of replicas)
+3. Round down slightly (e.g. 646m → 640m)
+4. If pods don't schedule: `kubectl describe pod | grep -A5 Events`
+   Reduce requests and retry until pods run
 
 ### Step 1 — Inspect current state
 ```bash
@@ -28,11 +29,11 @@ Use `kubectl edit deploy webapp-deployment` and add the resource block to **both
 # Add under each container spec (initContainers[0] AND containers[0]):
 resources:
   requests:
-    cpu: ___________     # target: 200m
-    memory: ___________  # target: 128Mi
+    cpu: ___________
+    memory: ___________
   limits:
-    cpu: ___________     # target: 400m
-    memory: ___________  # target: 256Mi
+    cpu: ___________
+    memory: ___________
 ```
 
 ### Step 4 — Scale back to 3 replicas

@@ -2,19 +2,36 @@
 set -euo pipefail
 
 manifest="/etc/kubernetes/manifests/kube-apiserver.yaml"
+etcd_manifest="/etc/kubernetes/manifests/etcd.yaml"
 
 if ! test -s "$manifest"; then
   echo "kube-apiserver manifest not found at $manifest"
   exit 1
 fi
 
-if ! grep -q -- '--etcd-servers=.*:2379' "$manifest"; then
-  echo "kube-apiserver --etcd-servers must use port 2379 (not 2380)"
+if ! test -s "$etcd_manifest"; then
+  echo "etcd manifest not found at $etcd_manifest"
+  exit 1
+fi
+
+expected="$(grep -oP '(?<=--listen-client-urls=)[^[:space:],]+' "$etcd_manifest" | head -1 || true)"
+if [ -z "$expected" ]; then
+  expected="https://127.0.0.1:2379"
+fi
+
+current="$(grep -oP '(?<=--etcd-servers=)[^[:space:]]+' "$manifest" | head -1 || true)"
+if [ -z "$current" ]; then
+  echo "kube-apiserver --etcd-servers is missing"
+  exit 1
+fi
+
+if ! test "$current" = "$expected"; then
+  echo "kube-apiserver --etcd-servers must match etcd listen-client-urls: $expected (got: $current)"
   exit 1
 fi
 
 if grep -q -- '--etcd-servers=.*:2380' "$manifest"; then
-  echo "kube-apiserver manifest still contains port 2380 – fix to 2379"
+  echo "kube-apiserver manifest still contains port 2380"
   exit 1
 fi
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ── Wait for Kubernetes API ──────────────────────────────────────────────────
 wait_kube() {
   for i in $(seq 1 60); do
     if kubectl get ns >/dev/null 2>&1; then
@@ -15,30 +14,43 @@ wait_kube() {
 
 wait_kube
 
-# ── Install Docker if missing ────────────────────────────────────────────────
 if ! command -v docker >/dev/null 2>&1; then
   apt-get update -y
   apt-get install -y docker.io
 fi
 
-# ── Start Docker daemon if not running ──────────────────────────────────────
-if ! docker info >/dev/null 2>&1; then
-  service docker start 2>/dev/null || \
-    dockerd --host=unix:///var/run/docker.sock >/var/log/dockerd.log 2>&1 &
-  sleep 5
+service docker start
+sleep 3
+
+DEB_SYSTEMD_INVOKE="/usr/bin/deb-systemd-invoke"
+DEB_SYSTEMD_INVOKE_BAK="/usr/bin/deb-systemd-invoke.bak"
+restore_deb_systemd_invoke() {
+  if [ -f "$DEB_SYSTEMD_INVOKE_BAK" ]; then
+    mv -f "$DEB_SYSTEMD_INVOKE_BAK" "$DEB_SYSTEMD_INVOKE"
+  fi
+}
+
+trap restore_deb_systemd_invoke EXIT
+
+if [ -f "$DEB_SYSTEMD_INVOKE" ]; then
+  cp "$DEB_SYSTEMD_INVOKE" "$DEB_SYSTEMD_INVOKE_BAK"
+  cat > "$DEB_SYSTEMD_INVOKE" <<'YAML'
+#!/usr/bin/env bash
+exit 0
+YAML
+  chmod +x "$DEB_SYSTEMD_INVOKE"
 fi
 
-# ── Download cri-dockerd v0.3.20 (uses Docker API 1.44 natively) ─────────────
-# v0.3.15 was compiled against Docker API 1.43 and fails with Docker daemon
-# v29+ which requires minimum API 1.44. v0.3.20 resolves this natively.
-DEB_URL="https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.20/cri-dockerd_0.3.20.3-0.ubuntu-jammy_amd64.deb"
-DEB_PATH="/root/cri-dockerd.deb"
-
+DEB_PATH="/root/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb"
 if [ ! -f "$DEB_PATH" ]; then
-  curl -fsSL "$DEB_URL" -o "$DEB_PATH" || echo "Warning: could not download cri-dockerd .deb" >&2
+  curl -fsSL "https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.15/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb" -o "$DEB_PATH"
 fi
 
-# ── Load br_netfilter so bridge sysctl keys exist ───────────────────────────
-modprobe br_netfilter 2>/dev/null || true
+dpkg -i "$DEB_PATH" 2>/dev/null || true
+
+restore_deb_systemd_invoke
+trap - EXIT
+
+systemctl daemon-reload
 
 echo "Setup complete"
