@@ -14,7 +14,20 @@ wait_kube() {
 
 wait_kube
 
+if ! command -v openssl >/dev/null 2>&1; then
+  apt-get update -y
+  apt-get install -y openssl
+fi
+
 kubectl create namespace media-zone --dry-run=client -o yaml | kubectl apply -f -
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /tmp/media-tls.key -out /tmp/media-tls.crt \
+  -subj "/CN=media.demo.local/O=demo" \
+  -addext "subjectAltName=DNS:media.demo.local" 2>/dev/null
+
+kubectl create secret tls media-tls --cert=/tmp/media-tls.crt --key=/tmp/media-tls.key \
+  -n media-zone --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1

@@ -17,7 +17,7 @@ wait_kube
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
 
 controller_phase=""
-for i in $(seq 1 90); do
+for i in $(seq 1 120); do
   controller_phase="$(kubectl get pods -n ingress-nginx -l app.kubernetes.io/component=controller -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "")"
   if test "$controller_phase" = "Running"; then
     break
@@ -26,8 +26,7 @@ for i in $(seq 1 90); do
 done
 
 if ! test "$controller_phase" = "Running"; then
-  echo "Ingress controller not ready after 90 seconds" >&2
-  exit 1
+  echo "Warning: ingress controller not ready after 120 seconds" >&2
 fi
 
 kubectl create -f - --dry-run=client -o yaml <<'YAML' | kubectl apply -f -

@@ -17,7 +17,7 @@ if ! test -s /root/subject-explain.txt; then
 fi
 
 if ! grep -qi 'subject\|Certificate' /root/subject-explain.txt; then
-  echo "~/subject-explain.txt must contain kubectl explain output for Certificate.spec.subject"
+  echo "~/subject-explain.txt must contain kubectl --request-timeout=15s explain output for Certificate.spec.subject"
   exit 1
 fi
 

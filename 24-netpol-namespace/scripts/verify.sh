@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get networkpolicy allow-9000-from-team -n echo >/dev/null 2>&1; then
+if ! kubectl --request-timeout=15s get networkpolicy allow-9000-from-team -n echo >/dev/null 2>&1; then
   echo "NetworkPolicy 'allow-9000-from-team' not found in namespace 'echo'"
   exit 1
 fi
 
-np_yaml="$(kubectl get networkpolicy allow-9000-from-team -n echo -o yaml)"
+np_yaml="$(kubectl --request-timeout=15s get networkpolicy allow-9000-from-team -n echo -o yaml)"
 
 if ! echo "$np_yaml" | grep -q -- '- Ingress'; then
   echo "NetworkPolicy must define Ingress policyType"

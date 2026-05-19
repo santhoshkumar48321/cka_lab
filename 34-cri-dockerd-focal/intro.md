@@ -1,22 +1,23 @@
 ## Scenario
-Your team needs to configure Docker Engine as a CRI-compatible runtime using cri-dockerd. The supported package has already been downloaded for this node. You must install it and enable both the service and socket units.
+cri-dockerd is already installed and running on this node. You must initialize the cluster with kubeadm **using the cri-dockerd socket**, and save the output for audit purposes.
 
 ## Goal
-Install cri-dockerd v0.3.15+ and enable `cri-docker.service` plus `cri-docker.socket`.
+Run `kubeadm init` with the cri-dockerd socket and save the output to `/root/kubeadm-init.log`.
 
 ## What exists when the node starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `docker.io` | Package | node | Already installed |
-| `/root/cri-dockerd.deb` | File | node | v0.3.15 (Docker API 1.44 compatible) |
+| `docker.io` | Package | node | Installed |
+| `cri-dockerd` | Service | node | Installed and running |
+| `/var/run/cri-dockerd.sock` | Socket | node | CRI socket path |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Install via | `dpkg -i` |
-| .deb file | `/root/cri-dockerd.deb` |
-| Enable service 1 | `cri-docker.service` |
-| Enable service 2 | `cri-docker.socket` |
-| CRI socket path | `/var/run/cri-dockerd.sock` |
+| Reset command | `kubeadm reset -f` |
+| Init command | `kubeadm init` with `--cri-socket` |
+| CRI socket | `unix:///var/run/cri-dockerd.sock` |
+| Pod CIDR | `192.168.0.0/16` |
+| Output log | `/root/kubeadm-init.log` |

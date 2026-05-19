@@ -34,12 +34,12 @@ if ! grep -q 'argocd-no-crds' /home/candidate/argo-cd-crds-disabled.yaml; then
 fi
 
 # ── Task 5: namespace + deployment applied to cluster ────────────────────────
-if ! kubectl get namespace argocd-no-crds >/dev/null 2>&1; then
-  echo "Namespace argocd-no-crds must exist — did you run: kubectl create namespace argocd-no-crds?"
+if ! kubectl --request-timeout=15s get namespace argocd-no-crds >/dev/null 2>&1; then
+  echo "Namespace argocd-no-crds must exist — did you run: kubectl --request-timeout=15s create namespace argocd-no-crds?"
   exit 1
 fi
 
-deploy_count=$(kubectl -n argocd-no-crds get deploy --no-headers 2>/dev/null | wc -l)
+deploy_count=$(kubectl --request-timeout=15s -n argocd-no-crds get deploy --no-headers 2>/dev/null | wc -l)
 if [ "$deploy_count" -lt 1 ]; then
   echo "No Deployments found in argocd-no-crds — did you apply argo-cd-crds-disabled.yaml?"
   exit 1

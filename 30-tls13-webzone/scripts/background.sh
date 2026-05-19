@@ -33,7 +33,7 @@ kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: site-tls-config
+  name: secure-site-config
   namespace: web-zone
 data:
   nginx.conf: |
@@ -43,7 +43,7 @@ data:
         listen 443 ssl;
         ssl_certificate     /etc/nginx/certs/tls.crt;
         ssl_certificate_key /etc/nginx/certs/tls.key;
-        ssl_protocols       TLSv1.2 TLSv1.3;
+        ssl_protocols       TLSv1.3;
         location / { return 200 "ok\n"; }
       }
     }
@@ -53,17 +53,17 @@ kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secure-site
+  name: legacy-server
   namespace: web-zone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: secure-site
+      app: legacy-server
   template:
     metadata:
       labels:
-        app: secure-site
+        app: legacy-server
     spec:
       containers:
       - name: nginx
@@ -79,7 +79,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: site-tls-config
+          name: secure-site-config
       - name: certs
         secret:
           secretName: site-tls
@@ -89,12 +89,12 @@ kubectl apply -f - <<'YAML'
 apiVersion: v1
 kind: Service
 metadata:
-  name: secure-site-svc
+  name: legacy-server-svc
   namespace: web-zone
 spec:
   type: ClusterIP
   selector:
-    app: secure-site
+    app: legacy-server
   ports:
   - port: 443
     targetPort: 443

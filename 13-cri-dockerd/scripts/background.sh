@@ -19,6 +19,12 @@ if ! command -v docker >/dev/null 2>&1; then
   apt-get install -y docker.io
 fi
 
+if ! docker info >/dev/null 2>&1; then
+  service docker start 2>/dev/null || \
+    dockerd --host=unix:///var/run/docker.sock >/var/log/dockerd.log 2>&1 &
+  sleep 5
+fi
+
 # Download cri-dockerd .deb to home directory
 DEB_URL="https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.15/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb"
 DEB_PATH="/root/cri-dockerd_0.3.15.3-0.ubuntu-jammy_amd64.deb"

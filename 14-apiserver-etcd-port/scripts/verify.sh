@@ -21,7 +21,7 @@ fi
 echo "Waiting for API server to become healthy..."
 healthy=0
 for i in $(seq 1 45); do
-  if kubectl get nodes >/dev/null 2>&1; then
+  if kubectl --request-timeout=15s get nodes >/dev/null 2>&1; then
     healthy=1
     break
   fi
