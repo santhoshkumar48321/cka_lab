@@ -1,24 +1,25 @@
 ## Scenario
-The myapp Deployment writes logs to /opt/logs.txt inside its container. Currently there is no way to view these logs with kubectl logs. You need to add a sidecar that streams the file to stdout.
+The `data-processor` Deployment writes results to `/data/output.log` inside its container. There is no way to stream these logs with `kubectl logs`. You must add a sidecar that tails the file to stdout.
 
 ## Goal
-Add a logshipper sidecar container to the myapp Deployment so its stdout streams /opt/logs.txt — without modifying or deleting the original myapp container.
+Add a `logshipper` sidecar container to the `data-processor` Deployment so its stdout streams `/data/output.log` — without modifying or deleting the original processor container.
 
 ## What exists when the scenario starts
 
 | Resource | Type | Namespace | Notes |
 |---|---|---|---|
-| `myapp` | Deployment | `default` | 1 replica, `busybox:1.36`, writes to `/opt/logs.txt` via shared emptyDir volume `data` |
+| `data-processor` | Deployment | `default` | 1 replica, `busybox:1.36`, writes to `/data/output.log` via shared emptyDir `output-data` |
 
 ## Requirements
 
 | Field | Value |
 |---|---|
-| Deployment | `myapp` |
+| Deployment | `data-processor` |
+| Main container | `processor` |
 | Sidecar name | `logshipper` |
 | Sidecar image | `alpine:latest` |
-| Command | `tail -f /opt/logs.txt` |
-| Shared volume name | `data` |
-| Volume mount path | `/opt` (both containers) |
-| Constraint | Do NOT modify or delete the `myapp` container |
+| Command | `tail -f /data/output.log` |
+| Shared volume name | `output-data` |
+| Volume mount path | `/data` (both containers) |
+| Constraint | Do NOT modify or delete the `processor` container |
 | Constraint | `logshipper` must be a sidecar, not an initContainer |

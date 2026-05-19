@@ -18,33 +18,33 @@ kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myapp
+  name: data-processor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: myapp
+      app: data-processor
   template:
     metadata:
       labels:
-        app: myapp
+        app: data-processor
     spec:
       containers:
-      - name: myapp
+      - name: processor
         image: busybox:1.36
         command: ["/bin/sh", "-c"]
         args:
         - |
-          mkdir -p /opt
+          mkdir -p /data
           while true; do
-            echo "$(date) app log entry" >> /opt/logs.txt
+            echo "\$(date) processing output" >> /data/output.log
             sleep 1
           done
         volumeMounts:
-        - name: data
-          mountPath: /opt
+        - name: output-data
+          mountPath: /data
       volumes:
-      - name: data
+      - name: output-data
         emptyDir: {}
 YAML
 

@@ -2,6 +2,7 @@
 
 1. Inspect existing Service `mediaserver-svc` in `media-zone`.
 2. Create Ingress `stream-route` with host/path routing to service port 8443.
+3. Configure TLS using the existing secret `media-tls`.
 
 ## Inspect existing resources
 
@@ -19,6 +20,10 @@ metadata:
   name: ___________
   namespace: ___________
 spec:
+  tls:
+  - hosts:
+    - ___________
+    secretName: ___________
   rules:
   - host: ___________
     http:

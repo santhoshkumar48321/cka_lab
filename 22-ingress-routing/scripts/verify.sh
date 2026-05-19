@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! kubectl get ingress whisper -n sound-zone >/dev/null 2>&1; then
+if ! kubectl --request-timeout=15s get ingress whisper -n sound-zone >/dev/null 2>&1; then
   echo "Ingress 'whisper' not found in namespace 'sound-zone'"
   exit 1
 fi
 
-ing_yaml="$(kubectl get ingress whisper -n sound-zone -o yaml)"
+ing_yaml="$(kubectl --request-timeout=15s get ingress whisper -n sound-zone -o yaml)"
 
 if ! echo "$ing_yaml" | grep -q 'mydemo.local'; then
   echo "Ingress 'whisper' host must be 'mydemo.local'"

@@ -2,7 +2,7 @@
 In namespace `data-tier`, two Deployments are running: `api-gateway` and `database`. Security policy requires that only `api-gateway` pods can access `database` on PostgreSQL port 5432.
 
 ## Goal
-Create NetworkPolicy `allow-db-from-gateway` to allow ingress to `database` only from `api-gateway` on TCP 5432.
+Create NetworkPolicy `allow-db-from-gateway` to allow ingress to `database` only from `api-gateway` on TCP 5432, and add an **egress** rule so only database traffic on 5432 is allowed.
 
 ## What exists when the scenario starts
 
@@ -18,5 +18,6 @@ Create NetworkPolicy `allow-db-from-gateway` to allow ingress to `database` only
 | Namespace | `data-tier` |
 | NetworkPolicy name | `allow-db-from-gateway` |
 | Target pods | `app=database` |
-| Allow from | `app=api-gateway` |
+| Allow ingress from | `app=api-gateway` |
+| Allow egress to | `app=database` |
 | Port | `TCP 5432` |

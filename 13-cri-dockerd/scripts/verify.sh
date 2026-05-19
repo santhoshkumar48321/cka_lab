@@ -8,6 +8,11 @@ if ! command -v cri-dockerd >/dev/null 2>&1 && \
   exit 1
 fi
 
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker daemon is not running. Run: service docker start && docker info"
+  exit 1
+fi
+
 ver=$(cri-dockerd --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 if [ -z "$ver" ]; then
   echo "Could not determine cri-dockerd version"

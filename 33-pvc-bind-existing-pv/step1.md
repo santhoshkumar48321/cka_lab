@@ -46,4 +46,5 @@ volumes:
 kubectl -n db-ns get pvc db-claim
 kubectl get pv db-pv -o jsonpath='{.status.phase}'
 kubectl -n db-ns get deployment postgres -o jsonpath='{.spec.template.spec.volumes}'
+kubectl -n db-ns logs -l app=postgres | grep 'ready to accept connections'
 ```

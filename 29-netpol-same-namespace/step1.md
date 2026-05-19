@@ -1,7 +1,7 @@
 ## Tasks
 
 1. Inspect existing Deployments in namespace `data-tier`.
-2. Create NetworkPolicy `allow-db-from-gateway` with pod selectors and TCP port 5432.
+2. Create NetworkPolicy `allow-db-from-gateway` with **Ingress and Egress** rules on TCP port 5432.
 
 ## Inspect existing resources
 
@@ -24,8 +24,17 @@ spec:
       app: ___________
   policyTypes:
   - Ingress
+  - Egress
   ingress:
   - from:
+    - podSelector:
+        matchLabels:
+          app: ___________
+    ports:
+    - protocol: TCP
+      port: ___________
+  egress:
+  - to:
     - podSelector:
         matchLabels:
           app: ___________

@@ -1,30 +1,29 @@
 ## Tasks
 
-1. Install cri-dockerd from the pre-downloaded package.
-2. Enable and start both `cri-docker.service` and `cri-docker.socket`.
+1. Ensure the Docker daemon is running.
+2. Reset any previous kubeadm state (safe if none exists).
+3. Run `kubeadm init` using the cri-dockerd socket and save output to `/root/kubeadm-init.log`.
 
-⚠️ Do NOT use v0.3.9 — it uses Docker API 1.43 which is incompatible with this cluster's Docker daemon (requires ≥ 1.44).
-
-## Inspect existing resources
-
+## Step 1 — Start Docker
 ```bash
-ls -lh /root/cri-dockerd.deb
-systemctl list-unit-files | grep cri-docker || true
+service docker start && docker info
 ```
 
-## Skeleton (fill in the blanks)
-
+## Step 2 — Reset kubeadm (ignore errors if not initialized)
 ```bash
-dpkg -i /root/cri-dockerd.deb
-systemctl enable --now cri-docker.service
-systemctl enable --now cri-docker.socket
+kubeadm reset -f 2>/dev/null || true
+```
+
+## Step 3 — Initialize the cluster with cri-dockerd
+```bash
+kubeadm init --cri-socket unix:///var/run/cri-dockerd.sock \
+  --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=all \
+  | tee /root/kubeadm-init.log
 ```
 
 ## Verify
-
 ```bash
-cri-dockerd --version
-systemctl is-active cri-docker.service
-systemctl is-active cri-docker.socket
-test -S /var/run/cri-dockerd.sock
+test -s /root/kubeadm-init.log
+grep -E "kubeadm join" /root/kubeadm-init.log
+grep -E "cri-dockerd|unix:///var/run/cri-dockerd.sock" /root/kubeadm-init.log
 ```

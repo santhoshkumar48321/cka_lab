@@ -1,14 +1,16 @@
 ## Tasks
 
-1. Install cri-dockerd from the pre-downloaded package.
-2. Enable and start both `cri-docker.service` and `cri-docker.socket`.
-3. Apply required sysctl networking settings.
+1. Ensure the Docker daemon is running.
+2. Install cri-dockerd from the pre-downloaded package.
+3. Enable and start both `cri-docker.service` and `cri-docker.socket`.
+4. Apply required sysctl networking settings.
 
 ⚠️ Do NOT use v0.3.9 — it uses Docker API 1.43 which is incompatible with this cluster's Docker daemon (requires ≥ 1.44).
 
 ## Inspect existing resources
 
 ```bash
+service docker start && docker info
 ls -lh /root/cri-dockerd.deb
 systemctl list-unit-files | grep cri-docker || true
 ```
