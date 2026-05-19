@@ -1,5 +1,5 @@
 {
-  "title": "Networking: Least-permissive NetworkPolicy within one namespace",
+  "title": "Q16: TLS — Add TLS 1.2 Support to nginx Server",
   "details": {
     "intro": {
       "text": "intro.md",

@@ -21,7 +21,7 @@ apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
   name: high-priority
-value: 1000
+value: 1000000
 globalDefault: false
 description: "High priority class"
 ---

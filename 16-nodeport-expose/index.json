@@ -1,5 +1,5 @@
 {
-  "title": "Networking: Expose deployment via NodePort",
+  "title": "Networking: Create Pod and expose via NodePort",
   "details": {
     "intro": {
       "text": "intro.md",

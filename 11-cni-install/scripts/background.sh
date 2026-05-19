@@ -14,6 +14,11 @@ wait_kube() {
 
 wait_kube
 
+CIDR=$(grep -oP '(?<=--cluster-cidr=)[^\s]+' \
+  /etc/kubernetes/manifests/kube-controller-manager.yaml 2>/dev/null \
+  || echo "192.168.0.0/16")
+echo "$CIDR" > /root/cluster-cidr.txt
+
 backup_dir="/etc/cni/net.d.backup.$(date +%s)"
 if [ -d /etc/cni/net.d ]; then
   cp -a /etc/cni/net.d "$backup_dir"

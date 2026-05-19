@@ -29,6 +29,7 @@ fi
 if kubectl --request-timeout=15s get nodes --no-headers 2>/dev/null | awk '$2 != "Ready"' | grep -q .; then
   echo "One or more nodes are not Ready after CNI install"
   kubectl --request-timeout=15s get nodes
+  echo "Please wait for all nodes to reach Ready state before checking."
   exit 1
 fi
 

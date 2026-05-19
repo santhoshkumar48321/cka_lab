@@ -31,7 +31,7 @@ spec:
         averageUtilization: ___________
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: ___________
+      stabilizationWindowSeconds: 30
 ```
 
 ## Verify

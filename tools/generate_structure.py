@@ -42,7 +42,7 @@ def main() -> None:
         )
 
     output = {
-        "title": "CKA 2026 Real-World Labs (35 Scenarios)",
+        "title": f"CKA 2026 Real-World Labs ({len(items)} Scenarios)",
         "description": "Exam-style Kubernetes Administrator scenarios with guided tasks, resets, and verification.",
         "items": items,
     }

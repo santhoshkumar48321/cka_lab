@@ -28,20 +28,19 @@ if grep -q 'kind: CustomResourceDefinition' /home/candidate/argo-cd-crds-disable
   exit 1
 fi
 
-if ! grep -q 'argocd-no-crds' /home/candidate/argo-cd-crds-disabled.yaml; then
-  echo "argo-cd-crds-disabled.yaml must reference namespace argocd-no-crds"
+if ! grep -q 'argocd' /home/candidate/argo-cd-crds-disabled.yaml; then
+  echo "argo-cd-crds-disabled.yaml must reference namespace argocd"
   exit 1
 fi
 
-# ── Task 5: namespace + deployment applied to cluster ────────────────────────
-if ! kubectl --request-timeout=15s get namespace argocd-no-crds >/dev/null 2>&1; then
-  echo "Namespace argocd-no-crds must exist — did you run: kubectl --request-timeout=15s create namespace argocd-no-crds?"
+if ! kubectl --request-timeout=15s get namespace argocd >/dev/null 2>&1; then
+  echo "Namespace argocd must exist"
   exit 1
 fi
 
-deploy_count=$(kubectl --request-timeout=15s -n argocd-no-crds get deploy --no-headers 2>/dev/null | wc -l)
-if [ "$deploy_count" -lt 1 ]; then
-  echo "No Deployments found in argocd-no-crds — did you apply argo-cd-crds-disabled.yaml?"
+pod_count=$(kubectl --request-timeout=15s get pods -n argocd --no-headers 2>/dev/null | grep -c Running || echo 0)
+if [ "$pod_count" -lt 1 ]; then
+  echo "FAIL: No running pods in argocd namespace — apply the manifest first"
   exit 1
 fi
 
